@@ -1,4 +1,4 @@
-package com.example.alexa.housebuddy;
+package allurosi.housebuddy;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
