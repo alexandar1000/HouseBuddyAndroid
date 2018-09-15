@@ -15,7 +15,7 @@ import allurosi.housebuddy.R;
 public class ToDoListActivity extends AppCompatActivity implements AddTaskDialogFragment.NewTaskDialogListener {
 
     List<String> toDoList = new ArrayList<>();
-    ListAdapter listAdapter;
+    ToDoListAdapter listAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
     @Override
     public void onFinishNewTaskDialog(String newTask) {
-        toDoList.add(newTask);
+        listAdapter.addTask(newTask);
     }
 
 }

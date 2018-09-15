@@ -52,6 +52,11 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
         return convertView;
     }
 
+    public void addTask(String taskName) {
+        toDoList.add(taskName);
+        notifyDataSetChanged();
+    }
+
     private void removeTask(int position) {
         // TODO: maybe add warning
         toDoList.remove(position);
