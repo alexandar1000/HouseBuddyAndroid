@@ -7,9 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import allurosi.housebuddy.R;
@@ -18,13 +21,14 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
 
     private Context mContext;
     private int mResourceId;
-    private List<String> toDoList;
+    private List<String> toDoList, selection;
 
     ToDoListAdapter(Context context, int resourceId, List<String> toDoList) {
         super(context, resourceId, toDoList);
         this.mContext = context;
         this.mResourceId = resourceId;
         this.toDoList = toDoList;
+        this.selection = new ArrayList<>();
     }
 
     @NonNull
@@ -39,15 +43,32 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
         TextView foodName = convertView.findViewById(R.id.task_name);
         foodName.setText(task);
 
-        ImageButton buttonDeleteFood = convertView.findViewById(R.id.delete_task_button);
-        buttonDeleteFood.setVisibility(View.VISIBLE);
+        CheckBox checkBox = convertView.findViewById(R.id.delete_checkbox);
 
-        buttonDeleteFood.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                removeTask(position);
+        // Add tag as identifier
+        checkBox.setTag(position);
+
+        if (ToDoListActivity.isActionMode) {
+            // Manages adding and removing from selection when an item is directly selected
+            // (When notifyDataSetInvalidated is called)
+            if (selection.contains(toDoList.get(position))) {
+                checkBox.setChecked(true);
+            } else {
+                checkBox.setChecked(false);
             }
-        });
+            // Add listener and make checkboxes visible in contextual action mode
+            checkBox.setOnCheckedChangeListener(checkedChangeListener);
+            checkBox.setVisibility(View.VISIBLE);
+
+            // Set contextual action bar title
+            ToDoListActivity.mActionMode.setTitle(selection.size() + " items selected.");
+        } else {
+            // Remove and reset checkboxes
+            checkBox.setVisibility(View.GONE);
+            checkBox.setOnCheckedChangeListener(null);
+            checkBox.setChecked(false);
+            checkBox.jumpDrawablesToCurrentState();
+        }
 
         return convertView;
     }
@@ -57,11 +78,64 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
         notifyDataSetChanged();
     }
 
-    private void removeTask(int position) {
-        // TODO: maybe add warning
-        toDoList.remove(position);
+    private void sortTasks() {
+        Collections.sort(toDoList);
+    }
+
+    public void addToSelection(String taskName) {
+        selection.add(taskName);
+        notifyDataSetInvalidated();
+    }
+
+    public void removeFromSelection(String taskName) {
+        selection.remove(taskName);
+        notifyDataSetInvalidated();
+    }
+
+    public void clearSelection() {
+        selection.clear();
+    }
+
+    public void deleteSelected() {
+        for (String task : selection) {
+            toDoList.remove(task);
+        }
+
         notifyDataSetChanged();
     }
+
+    public void undoRemoval() {
+        toDoList.addAll(selection);
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        sortTasks();
+    }
+
+    /**
+     *  Change listener for the checkBoxes, manages items in the selection
+     */
+    private CompoundButton.OnCheckedChangeListener checkedChangeListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            int position = (int) compoundButton.getTag();
+            String selectedTask = toDoList.get(position);
+
+            // Add item if it's selected but not in the selection, vice versa for removing
+            if (b) {
+                if (!selection.contains(selectedTask)) {
+                    selection.add(selectedTask);
+                }
+            } else if (selection.contains(selectedTask)) {
+                selection.remove(selectedTask);
+            }
+
+            ToDoListActivity.mActionMode.setTitle(selection.size() + " items selected.");
+        }
+    };
 
 }
 
