@@ -80,10 +80,10 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
             String task = toDoList.get(i);
 
             // Add and remove items from selection when list item is selected
-            if (b) {
-                listAdapter.addToSelection(task);
-            } else {
+            if (listAdapter.isSelected(task)) {
                 listAdapter.removeFromSelection(task);
+            } else {
+                listAdapter.addToSelection(task);
             }
         }
 
@@ -125,6 +125,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     return true;
                 case R.id.action_complete:
                     // TODO implement marking tasks as complete, create task class
+                    actionMode.finish();
                     return true;
                 default:
                     return false;

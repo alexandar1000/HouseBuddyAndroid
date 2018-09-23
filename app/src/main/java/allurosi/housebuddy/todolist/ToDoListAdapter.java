@@ -61,7 +61,7 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
             checkBox.setVisibility(View.VISIBLE);
 
             // Set contextual action bar title
-            ToDoListActivity.mActionMode.setTitle(selection.size() + " items selected.");
+            ToDoListActivity.mActionMode.setTitle(selection.size() + " items selected");
         } else {
             // Remove and reset checkboxes
             checkBox.setVisibility(View.GONE);
@@ -80,6 +80,10 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
 
     private void sortTasks() {
         Collections.sort(toDoList);
+    }
+
+    public boolean isSelected(String taskName) {
+        return selection.contains(taskName);
     }
 
     public void addToSelection(String taskName) {
@@ -115,6 +119,7 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
         sortTasks();
     }
 
+
     /**
      *  Change listener for the checkBoxes, manages items in the selection
      */
@@ -129,11 +134,11 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
                 if (!selection.contains(selectedTask)) {
                     selection.add(selectedTask);
                 }
-            } else if (selection.contains(selectedTask)) {
+            } else {
                 selection.remove(selectedTask);
             }
 
-            ToDoListActivity.mActionMode.setTitle(selection.size() + " items selected.");
+            ToDoListActivity.mActionMode.setTitle(selection.size() + " items selected");
         }
     };
 
