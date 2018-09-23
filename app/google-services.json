@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1084037729192",
+    "firebase_url": "https://housebuddy123.firebaseio.com",
+    "project_id": "housebuddy123",
+    "storage_bucket": "housebuddy123.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1084037729192:android:f150f7691bdc7da4",
+        "android_client_info": {
+          "package_name": "com.example.alexa.housebuddy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1084037729192-0art1ce4d02hpndq2ckrnpb29c9npajo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.alexa.housebuddy",
+            "certificate_hash": "5fe4deee12ace711d7834f077bd092706258bf09"
+          }
+        },
+        {
+          "client_id": "1084037729192-bi3flmkhfsb5b502nhruus098b5e2qbk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDprOR3bX0Auf0hHWoe5-IASQNIv3MoOos"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1084037729192-bi3flmkhfsb5b502nhruus098b5e2qbk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
