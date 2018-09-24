@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,9 +26,12 @@ public class LogInActivity extends Activity {
 
     private EditText mEmailInput;
     private EditText mPasswordInput;
+    private TextView mLoggedInUser;
 
     private Button mLogInButton;
     private Button mSignUpButton;
+
+    private Button mLogOutButton;
 
 
     @Override
@@ -42,9 +46,12 @@ public class LogInActivity extends Activity {
 
         mLogInButton = (Button) findViewById(R.id.logInButton);
         mSignUpButton = (Button) findViewById(R.id.signUpButton);
+        mLogOutButton = (Button) findViewById(R.id.logOutButton);
 
-        mLogInButton.setVisibility(View.VISIBLE);
-        mSignUpButton.setVisibility(View.VISIBLE);
+//        mLogInButton.setVisibility(View.VISIBLE);
+//        mSignUpButton.setVisibility(View.VISIBLE);
+
+        mLoggedInUser = (TextView) findViewById(R.id.loggedInUser);
 
 
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +67,15 @@ public class LogInActivity extends Activity {
                 logInUser();
             }
         });
+
+        mLogOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logOutUser();
+            }
+        });
+
+        populateCurrentUser(mLoggedInUser);
 
     }
 
@@ -78,20 +94,21 @@ public class LogInActivity extends Activity {
 //            mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
             mLogInButton.setVisibility(View.GONE);
+            mSignUpButton.setVisibility(View.GONE);
+            populateCurrentUser(mLoggedInUser);
         } else {
 //            mStatusTextView.setText(R.string.signed_out);
 //            mDetailTextView.setText(null);
 //
 //            findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
 //            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
+            populateCurrentUser(mLoggedInUser);
         }
     }
 
     private void signUpUser() {
         String email = mEmailInput.getText().toString();
         String password = mPasswordInput.getText().toString();
-
-        System.out.println(email + "   " +password);
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -136,6 +153,23 @@ public class LogInActivity extends Activity {
                         // ...
                     }
                 });
+    }
+
+    private void populateCurrentUser(TextView v) {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            v.setText(user.getEmail());
+        } else {
+            v.setText(R.string.userLoggedOut);
+        }
+    }
+
+    private void logOutUser() {
+        mAuth.signOut();
+        populateCurrentUser(mLoggedInUser);
+        mLogInButton.setVisibility(View.VISIBLE);
+        mSignUpButton.setVisibility(View.VISIBLE);
     }
 
 

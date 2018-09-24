@@ -7,4 +7,7 @@
     <string name="email">Email</string>
     <string name="log_in">Log In</string>
     <string name="sign_up">Sign Up</string>
+    <string name="logged_in_user">Logged In User</string>
+    <string name="userLoggedOut">Logged Out</string>
+    <string name="log_out">Log Out</string>
 </resources>
