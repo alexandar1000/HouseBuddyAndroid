@@ -30,6 +30,8 @@ public class LogInActivity extends Activity {
 
     private Button mLogInButton;
     private Button mSignUpButton;
+    private Button mGoogleSignIn;
+    private Button mFacebookSignIn;
 
     private Button mLogOutButton;
 
@@ -47,6 +49,8 @@ public class LogInActivity extends Activity {
         mLogInButton = (Button) findViewById(R.id.logInButton);
         mSignUpButton = (Button) findViewById(R.id.signUpButton);
         mLogOutButton = (Button) findViewById(R.id.logOutButton);
+        mGoogleSignIn = (Button) findViewById(R.id.googleSignIn);
+        mFacebookSignIn = (Button) findViewById(R.id.facebookSignIn);
 
 //        mLogInButton.setVisibility(View.VISIBLE);
 //        mSignUpButton.setVisibility(View.VISIBLE);
@@ -95,6 +99,7 @@ public class LogInActivity extends Activity {
 
             mLogInButton.setVisibility(View.GONE);
             mSignUpButton.setVisibility(View.GONE);
+            mLogOutButton.setVisibility(View.VISIBLE);
             populateCurrentUser(mLoggedInUser);
         } else {
 //            mStatusTextView.setText(R.string.signed_out);
@@ -160,14 +165,17 @@ public class LogInActivity extends Activity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             v.setText(user.getEmail());
+            mLogOutButton.setVisibility(View.VISIBLE);
         } else {
             v.setText(R.string.userLoggedOut);
+            mLogOutButton.setVisibility(View.GONE);
         }
     }
 
     private void logOutUser() {
         mAuth.signOut();
         populateCurrentUser(mLoggedInUser);
+//        mLogOutButton.setVisibility(View.GONE);
         mLogInButton.setVisibility(View.VISIBLE);
         mSignUpButton.setVisibility(View.VISIBLE);
     }
