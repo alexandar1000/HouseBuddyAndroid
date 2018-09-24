@@ -102,7 +102,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/googleSignIn" />
 
-    <Button
+
+    <com.google.android.gms.common.SignInButton
         android:id="@+id/googleSignIn"
         android:layout_width="336dp"
         android:layout_height="wrap_content"
@@ -111,9 +112,9 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
-        android:text="@string/sign_in_with_google"
         app:layout_constraintBottom_toTopOf="@+id/facebookSignIn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/signUpButton" />
+
 </android.support.constraint.ConstraintLayout>
