@@ -16,12 +16,12 @@ import static android.view.Window.FEATURE_NO_TITLE;
 
 public class AddTaskDialogFragment extends DialogFragment {
 
-    private String newTask;
+    private Task newTask;
 
     private NewTaskDialogListener listener;
 
     public interface NewTaskDialogListener {
-        void onFinishNewTaskDialog(String newTask);
+        void onFinishNewTaskDialog(Task newTask);
     }
 
     @Nullable
@@ -31,7 +31,6 @@ public class AddTaskDialogFragment extends DialogFragment {
         getDialog().requestWindowFeature(FEATURE_NO_TITLE);
 
         final EditText newTaskNameInput = view.findViewById(R.id.new_task_name);
-        // TODO: implement description
         final EditText newTaskDescInput = view.findViewById(R.id.new_task_description);
         Button cancelButton = view.findViewById(R.id.button_cancel);
         Button createButton = view.findViewById(R.id.button_create);
@@ -46,7 +45,7 @@ public class AddTaskDialogFragment extends DialogFragment {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (createTask(newTaskNameInput.getText().toString())) {
+                if (createTask(newTaskNameInput.getText().toString(), newTaskDescInput.getText().toString())) {
                     // Notify the listener that a new task has to be added
                     listener.onFinishNewTaskDialog(newTask);
                     dismiss();
@@ -61,13 +60,16 @@ public class AddTaskDialogFragment extends DialogFragment {
         listener = (NewTaskDialogListener) parent;
     }
 
-    private boolean createTask(String newTaskName) {
+    private boolean createTask(String newTaskName, String newTaskDescription) {
         // Notify the user if no name is supplied before pressing create
         if (newTaskName.isEmpty()) {
             Toast.makeText(getActivity(), "Please enter a name.", Toast.LENGTH_SHORT).show();
             return false;
         }
-        newTask = newTaskName;
+
+        newTask = new Task(newTaskName);
+        newTask.setDescription(newTaskDescription);
+
         return true;
     }
 
