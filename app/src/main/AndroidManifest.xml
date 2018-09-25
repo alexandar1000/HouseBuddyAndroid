@@ -40,6 +40,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".todolist.ToDoListActivity" />
         </activity>
+        <activity android:name=".authentication.LogInActivity" />
+        <activity android:name=".HouseholdManagerActivity" />
     </application>
 
 </manifest>

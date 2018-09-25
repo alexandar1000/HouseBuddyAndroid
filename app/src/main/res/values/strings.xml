@@ -3,5 +3,19 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="log_in">Log In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="logged_in_user">Logged In User</string>
+    <string name="userLoggedOut">Logged Out</string>
+    <string name="log_out">Log Out</string>
+    <string name="sign_in_with_google">Sign in with Google..</string>
+    <string name="sign_in_with_facebook">Sign in with Facebook</string>
+    <string name="chore_schedule">Chore Schedule</string>
+    <string name="to_do_list">To Do List</string>
+    <string name="shopping_list">Shopping List</string>
+    <string name="utility_reservation">Utility Reservation</string>
+    <string name="expense_tracker">Expense Tracker</string>
     <string name="title_activity_view_task">ViewTaskActivity</string>
 </resources>
