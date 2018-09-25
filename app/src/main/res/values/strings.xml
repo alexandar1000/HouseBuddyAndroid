@@ -12,4 +12,10 @@
     <string name="log_out">Log Out</string>
     <string name="sign_in_with_google">Sign in with Google..</string>
     <string name="sign_in_with_facebook">Sign in with Facebook</string>
+    <string name="log_out">Log Out</string>
+    <string name="chore_schedule">Chore Schedule</string>
+    <string name="to_do_list">To Do List</string>
+    <string name="shopping_list">Shopping List</string>
+    <string name="utility_reservation">Utility Reservation</string>
+    <string name="expense_tracker">Expense Tracker</string>
 </resources>
