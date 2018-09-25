@@ -61,7 +61,7 @@ public class LogInActivity extends AppCompatActivity {
         Button mLogInButton = (Button) findViewById(R.id.logInButton);
         Button mSignUpButton = (Button) findViewById(R.id.signUpButton);
         SignInButton mGoogleSignIn = (SignInButton) findViewById(R.id.googleSignInBtn);
-        Button mFacebookSignIn = (Button) findViewById(R.id.facebookSignInBtn);
+        LoginButton mFacebookSignIn = (LoginButton) findViewById(R.id.facebookSignInBtn);
 
 
         mCallbackManager = CallbackManager.Factory.create();
@@ -78,9 +78,8 @@ public class LogInActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
 
-        LoginButton loginButton = findViewById(R.id.facebookSignInBtn);
-        loginButton.setReadPermissions("email", "public_profile");
-        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+        mFacebookSignIn.setReadPermissions("email", "public_profile");
+        mFacebookSignIn.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
