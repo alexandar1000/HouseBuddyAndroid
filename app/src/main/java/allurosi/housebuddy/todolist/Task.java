@@ -9,11 +9,11 @@ public class Task implements Comparable<Task>, Parcelable {
     private String name;
     private String description = "This task has no description.";
 
-    public Task(String name) {
+    Task(String name) {
         this.name = name;
     }
 
-    public Task(String name, String description) {
+    Task(String name, String description) {
         this.name = name;
         this.description = description;
     }
@@ -59,6 +59,7 @@ public class Task implements Comparable<Task>, Parcelable {
     public int compareTo(@NonNull Task t) {
         return name.compareTo(t.name);
     }
+
 
     @Override
     public int describeContents() {
