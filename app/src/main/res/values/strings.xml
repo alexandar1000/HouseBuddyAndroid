@@ -17,4 +17,5 @@
     <string name="shopping_list">Shopping List</string>
     <string name="utility_reservation">Utility Reservation</string>
     <string name="expense_tracker">Expense Tracker</string>
+    <string name="title_activity_view_task">ViewTaskActivity</string>
 </resources>

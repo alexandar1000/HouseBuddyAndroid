@@ -17,13 +17,13 @@ import java.util.List;
 
 import allurosi.housebuddy.R;
 
-public class ToDoListAdapter extends ArrayAdapter<String> {
+public class ToDoListAdapter extends ArrayAdapter<Task> {
 
     private Context mContext;
     private int mResourceId;
-    private List<String> toDoList, selection;
+    private List<Task> toDoList, selection;
 
-    ToDoListAdapter(Context context, int resourceId, List<String> toDoList) {
+    ToDoListAdapter(Context context, int resourceId, List<Task> toDoList) {
         super(context, resourceId, toDoList);
         this.mContext = context;
         this.mResourceId = resourceId;
@@ -34,14 +34,14 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
     @NonNull
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        final String task = getItem(position);
+        final Task task = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(mResourceId, parent, false);
         }
 
-        TextView foodName = convertView.findViewById(R.id.task_name);
-        foodName.setText(task);
+        TextView foodName = convertView.findViewById(R.id.item_task_name);
+        foodName.setText(task.getName());
 
         CheckBox checkBox = convertView.findViewById(R.id.delete_checkbox);
 
@@ -73,26 +73,21 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
         return convertView;
     }
 
-    public void addTask(String taskName) {
-        toDoList.add(taskName);
-        notifyDataSetChanged();
-    }
-
     private void sortTasks() {
         Collections.sort(toDoList);
     }
 
-    public boolean isSelected(String taskName) {
-        return selection.contains(taskName);
+    public boolean isSelected(Task task) {
+        return selection.contains(task);
     }
 
-    public void addToSelection(String taskName) {
-        selection.add(taskName);
+    public void addToSelection(Task task) {
+        selection.add(task);
         notifyDataSetInvalidated();
     }
 
-    public void removeFromSelection(String taskName) {
-        selection.remove(taskName);
+    public void removeFromSelection(Task task) {
+        selection.remove(task);
         notifyDataSetInvalidated();
     }
 
@@ -101,7 +96,7 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
     }
 
     public void deleteSelected() {
-        for (String task : selection) {
+        for (Task task : selection) {
             toDoList.remove(task);
         }
 
@@ -127,7 +122,7 @@ public class ToDoListAdapter extends ArrayAdapter<String> {
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
             int position = (int) compoundButton.getTag();
-            String selectedTask = toDoList.get(position);
+            Task selectedTask = toDoList.get(position);
 
             // Add item if it's selected but not in the selection, vice versa for removing
             if (b) {
