@@ -20,38 +20,38 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/choreSchedule"
+            android:id="@+id/choreScheduleBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/chore_schedule" />
 
         <Button
-            android:id="@+id/toDoList"
+            android:id="@+id/toDoListBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/to_do_list" />
 
         <Button
-            android:id="@+id/shoppingList"
+            android:id="@+id/shoppingListBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/shopping_list" />
 
         <Button
-            android:id="@+id/utilityReservation"
+            android:id="@+id/utilityReservationBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/utility_reservation" />
 
         <Button
-            android:id="@+id/expenseTracker"
+            android:id="@+id/expenseTrackerBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/expense_tracker" />
     </LinearLayout>
 
     <Button
-        android:id="@+id/logoutButton"
+        android:id="@+id/logoutBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"

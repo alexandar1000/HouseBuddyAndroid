@@ -15,12 +15,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//        setContentView(R.layout.log_in_layout);
         Intent intent = new Intent(this, LogInActivity.class);
         startActivity(intent);
-//        Intent intent = new Intent(this, LogInActivity.class);
-//        startActivity(intent);
     }
 
     public void buttonToDoList(View view) {
