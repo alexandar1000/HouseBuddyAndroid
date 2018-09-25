@@ -33,7 +33,7 @@
             android:name=".todolist.ViewTaskActivity"
             android:parentActivityName=".todolist.ToDoListActivity"
             android:label="@string/title_activity_view_task"
-            android:theme="@style/NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data

@@ -1,7 +1,10 @@
 package allurosi.housebuddy.todolist;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -61,11 +64,30 @@ public class ViewTaskActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_delete:
-                // TODO: add warning dialog
-                Intent returnIntent = new Intent(this, ToDoListActivity.class);
-                returnIntent.putExtra(TASK_MESSAGE, mTask);
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                AlertDialog.Builder builder;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    builder = new AlertDialog.Builder(ViewTaskActivity.this, android.R.style.ThemeOverlay_Material_Dialog_Alert);
+                } else {
+                    builder = new AlertDialog.Builder(ViewTaskActivity.this);
+                }
+
+                builder.setMessage("Delete this task?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Set result to RESULT_OK and add intent with task
+                        Intent returnIntent = new Intent(ViewTaskActivity.this, ToDoListActivity.class);
+                        returnIntent.putExtra(TASK_MESSAGE, mTask);
+                        setResult(RESULT_OK, returnIntent);
+                        finish();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
                 return true;
 
             default:

@@ -1,8 +1,11 @@
 package allurosi.housebuddy.todolist;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ActionMode;
@@ -27,6 +30,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
     private static List<Task> toDoList = new ArrayList<>();
     private ToDoListAdapter listAdapter;
+    private Task lastDeleted;
 
     public static Boolean isActionMode = false;
     public static ActionMode mActionMode = null;
@@ -92,9 +96,19 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         // Remove task if ViewTaskActivity returns RESULT_OK
         if (requestCode == DELETE_TASK) {
             if (resultCode == RESULT_OK) {
-                // TODO: implement undo + add Snackbar
                 Task task = data.getParcelableExtra(TASK_MESSAGE);
+                lastDeleted = task;
                 listAdapter.remove(task);
+
+                // Show snackbar with option to undo removal
+                Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Task deleted.", Snackbar.LENGTH_LONG);
+                deleteSnackbar.setAction("Undo", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        listAdapter.add(lastDeleted);
+                    }
+                });
+                deleteSnackbar.show();
             }
         }
     }
@@ -132,21 +146,40 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         }
 
         @Override
-        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+        public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
             switch (menuItem.getItemId()) {
                 case R.id.action_delete_multiple:
-                    listAdapter.deleteSelected();
-                    actionMode.finish();
+                    AlertDialog.Builder builder;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        builder = new AlertDialog.Builder(ToDoListActivity.this, android.R.style.ThemeOverlay_Material_Dialog_Alert);
+                    } else {
+                        builder = new AlertDialog.Builder(ToDoListActivity.this);
+                    }
 
-                    // Show snackbar with option to undo removal
-                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Tasks removed.", Snackbar.LENGTH_LONG);
-                    deleteSnackbar.setAction("Undo", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            listAdapter.undoRemoval();
+                    builder.setMessage("Delete these tasks?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            listAdapter.deleteSelected();
+                            actionMode.finish();
+
+                            // Show snackbar with option to undo removal
+                            Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Tasks deleted.", Snackbar.LENGTH_LONG);
+                            deleteSnackbar.setAction("Undo", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    listAdapter.undoRemoval();
+                                }
+                            });
+                            deleteSnackbar.show();
                         }
-                    });
-                    deleteSnackbar.show();
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            actionMode.finish();
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
                     return true;
 
                 case R.id.action_complete_multiple:
