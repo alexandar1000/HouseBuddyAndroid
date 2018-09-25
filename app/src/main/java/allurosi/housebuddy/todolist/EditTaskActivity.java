@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import allurosi.housebuddy.R;
 
@@ -66,14 +67,25 @@ public class EditTaskActivity extends AppCompatActivity {
             case R.id.action_save:
                 Intent returnIntent = new Intent(EditTaskActivity.this, ViewTaskActivity.class);
 
-                // Get new values and update the task
-                mTask.setName(textTaskName.getText().toString());
-                mTask.setDescription(textTaskDesc.getText().toString());
+                // Get new values
+                String newName = textTaskName.getText().toString();
+                String newDesc = textTaskDesc.getText().toString();
 
-                returnIntent.putExtra(TASK_MESSAGE, mTask);
-                returnIntent.putExtra(TASK_MESSAGE_ORIGINAL, originalTask);
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                // Only change the name and description if they are not empty
+                if (newName.equals("")) {
+                    Toast.makeText(EditTaskActivity.this, "Please enter a name.", Toast.LENGTH_SHORT).show();
+                } else {
+                    mTask.setName(textTaskName.getText().toString());
+
+                    if (!newDesc.equals("")) {
+                        mTask.setDescription(textTaskDesc.getText().toString());
+                    }
+
+                    returnIntent.putExtra(TASK_MESSAGE, mTask);
+                    returnIntent.putExtra(TASK_MESSAGE_ORIGINAL, originalTask);
+                    setResult(RESULT_OK, returnIntent);
+                    finish();
+                }
                 return true;
 
             default:
