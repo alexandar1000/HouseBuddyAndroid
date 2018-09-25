@@ -2,13 +2,13 @@ package allurosi.housebuddy;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import allurosi.housebuddy.authentication.LogInActivity;
 import allurosi.housebuddy.todolist.ToDoListActivity;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
 
 

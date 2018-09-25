@@ -1,5 +1,7 @@
 package allurosi.housebuddy.todolist;
 
+import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -20,7 +23,10 @@ import allurosi.housebuddy.R;
 
 public class ToDoListActivity extends AppCompatActivity implements AddTaskDialogFragment.NewTaskDialogListener {
 
-    private List<String> toDoList = new ArrayList<>();
+    public static final String TASK_MESSAGE = "Task";
+    public static final int DELETE_TASK = 1;
+
+    private static List<Task> toDoList = new ArrayList<>();
     private ToDoListAdapter listAdapter;
 
     public static Boolean isActionMode = false;
@@ -31,17 +37,28 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_to_do_list);
 
+        getSupportActionBar().setTitle("To Do List");
+
         // TODO: change to RecyclerView in the future?
         final ListView toDoListView = findViewById(R.id.to_do_list);
         FloatingActionButton fab = findViewById(R.id.add_task_fab);
 
-        // TODO: implement description
         listAdapter = new ToDoListAdapter(this, R.layout.to_do_list_item, toDoList);
         toDoListView.setAdapter(listAdapter);
 
         // Allow multiple choices in selection mode and set listener
         toDoListView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
         toDoListView.setMultiChoiceModeListener(modeListener);
+        toDoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Task clickedTask = (Task) adapterView.getItemAtPosition(i);
+
+                Intent intent = new Intent(ToDoListActivity.this, ViewTaskActivity.class);
+                intent.putExtra(TASK_MESSAGE, clickedTask);
+                startActivityForResult(intent, DELETE_TASK);
+            }
+        });
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,16 +66,14 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                 addTask();
             }
         });
-
-        initDummyData();
     }
 
-    private void initDummyData() {
+    public static void initDummyData() {
         // TODO: remove if testing is done
-        toDoList.add("Clean kitchen");
-        toDoList.add("Buy new pans");
-        toDoList.add("Fix stove");
-        toDoList.add("Make chore schedule");
+        toDoList.add(new Task("Clean kitchen"));
+        toDoList.add(new Task("Buy new pans", "We need a new frying pan since the other one broke.."));
+        toDoList.add(new Task("Fix stove", "The right burner isn't working atm."));
+        toDoList.add(new Task("Make chore schedule"));
         Collections.sort(toDoList);
     }
 
@@ -69,15 +84,26 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     }
 
     @Override
-    public void onFinishNewTaskDialog(String newTask) {
-        listAdapter.addTask(newTask);
+    public void onFinishNewTaskDialog(Task newTask) {
+        listAdapter.add(newTask);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Remove task if ViewTaskActivity returns RESULT_OK
+        if (requestCode == DELETE_TASK) {
+            if (resultCode == RESULT_OK) {
+                // TODO: implement undo + add Snackbar
+                Task task = data.getParcelableExtra(TASK_MESSAGE);
+                listAdapter.remove(task);
+            }
+        }
+    }
 
     AbsListView.MultiChoiceModeListener modeListener = new AbsListView.MultiChoiceModeListener() {
         @Override
         public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
-            String task = toDoList.get(i);
+            Task task = toDoList.get(i);
 
             // Add and remove items from selection when list item is selected
             if (listAdapter.isSelected(task)) {
@@ -90,7 +116,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
             MenuInflater inflater = actionMode.getMenuInflater();
-            inflater.inflate(R.menu.todo_list_context_menu, menu);
+            inflater.inflate(R.menu.context_menu_todo_list, menu);
 
             // Clear previous selection, undo no longer possible
             listAdapter.clearSelection();
@@ -109,7 +135,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch (menuItem.getItemId()) {
-                case R.id.action_delete:
+                case R.id.action_delete_multiple:
                     listAdapter.deleteSelected();
                     actionMode.finish();
 
@@ -123,10 +149,12 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     });
                     deleteSnackbar.show();
                     return true;
-                case R.id.action_complete:
+
+                case R.id.action_complete_multiple:
                     // TODO implement marking tasks as complete, create task class
                     actionMode.finish();
                     return true;
+
                 default:
                     return false;
             }
