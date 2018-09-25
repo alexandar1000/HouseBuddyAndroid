@@ -56,4 +56,10 @@ public class HouseholdManagerActivity extends Activity {
         Intent intent = new Intent(this, ToDoListActivity.class);
         startActivity(intent);
     }
+
+    public void buttonToDoList(View view) {
+        Intent intent = new Intent(this, ToDoListActivity.class);
+        startActivity(intent);
+    }
+
 }
