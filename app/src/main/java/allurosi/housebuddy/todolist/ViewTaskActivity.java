@@ -15,20 +15,29 @@ import android.widget.Toast;
 
 import allurosi.housebuddy.R;
 
+import static allurosi.housebuddy.todolist.ToDoListActivity.RESULT_DELETE;
+import static allurosi.housebuddy.todolist.ToDoListActivity.RESULT_EDIT;
 import static allurosi.housebuddy.todolist.ToDoListActivity.TASK_MESSAGE;
 
 public class ViewTaskActivity extends AppCompatActivity {
 
+    public static final String TASK_MESSAGE_ORIGINAL = "OriginalTask";
+
+    public static final int EDIT_TASK = 1;
+
     private Task mTask;
+
+    private Toolbar actionToolBar;
+    private TextView textTaskDesc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_task);
 
-        Toolbar actionToolBar = findViewById(R.id.toolbar_view_task);
+        actionToolBar = findViewById(R.id.toolbar_view_task);
         actionToolBar.setTitle("");
-        TextView textTaskDesc = findViewById(R.id.view_task_description);
+        textTaskDesc = findViewById(R.id.view_task_description);
 
         // Add back button to toolbar
         setSupportActionBar(actionToolBar);
@@ -45,6 +54,25 @@ public class ViewTaskActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == EDIT_TASK) {
+            if (resultCode == RESULT_OK) {
+                mTask = data.getParcelableExtra(TASK_MESSAGE);
+                Task originalTask = data.getParcelableExtra(TASK_MESSAGE_ORIGINAL);
+                actionToolBar.setTitle(mTask.getName());
+                textTaskDesc.setText(mTask.getDescription());
+
+                Intent returnIntent = new Intent(ViewTaskActivity.this, ToDoListActivity.class);
+                returnIntent.putExtra(TASK_MESSAGE, mTask);
+                returnIntent.putExtra(TASK_MESSAGE_ORIGINAL, originalTask);
+                setResult(RESULT_EDIT, returnIntent);
+
+                Toast.makeText(this, "Task saved.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_view_task, menu);
@@ -55,12 +83,19 @@ public class ViewTaskActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+
             case R.id.action_complete:
                 Toast.makeText(this, "Task marked as completed.", Toast.LENGTH_SHORT).show();
                 finish();
                 return true;
 
             case R.id.action_edit:
+                Intent intent = new Intent(ViewTaskActivity.this, EditTaskActivity.class);
+                intent.putExtra(TASK_MESSAGE, mTask);
+                startActivityForResult(intent, EDIT_TASK);
                 return true;
 
             case R.id.action_delete:
@@ -74,10 +109,10 @@ public class ViewTaskActivity extends AppCompatActivity {
                 builder.setMessage("Delete this task?")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // Set result to RESULT_OK and add intent with task
+                        // Set result to RESULT_DELETE and add intent with task
                         Intent returnIntent = new Intent(ViewTaskActivity.this, ToDoListActivity.class);
                         returnIntent.putExtra(TASK_MESSAGE, mTask);
-                        setResult(RESULT_OK, returnIntent);
+                        setResult(RESULT_DELETE, returnIntent);
                         finish();
                     }
                 })

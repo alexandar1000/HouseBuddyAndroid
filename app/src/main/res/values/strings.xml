@@ -18,4 +18,5 @@
     <string name="utility_reservation">Utility Reservation</string>
     <string name="expense_tracker">Expense Tracker</string>
     <string name="title_activity_view_task">ViewTaskActivity</string>
+    <string name="title_activity_edit_task">EditTaskActivity</string>
 </resources>

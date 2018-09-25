@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,10 +24,15 @@ import java.util.List;
 
 import allurosi.housebuddy.R;
 
+import static allurosi.housebuddy.todolist.ViewTaskActivity.TASK_MESSAGE_ORIGINAL;
+
 public class ToDoListActivity extends AppCompatActivity implements AddTaskDialogFragment.NewTaskDialogListener {
 
     public static final String TASK_MESSAGE = "Task";
-    public static final int DELETE_TASK = 1;
+
+    public static final int VIEW_TASK = 1;
+    public static final int RESULT_DELETE = 1;
+    public static final int RESULT_EDIT = 2;
 
     private static List<Task> toDoList = new ArrayList<>();
     private ToDoListAdapter listAdapter;
@@ -59,7 +65,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
                 Intent intent = new Intent(ToDoListActivity.this, ViewTaskActivity.class);
                 intent.putExtra(TASK_MESSAGE, clickedTask);
-                startActivityForResult(intent, DELETE_TASK);
+                startActivityForResult(intent, VIEW_TASK);
             }
         });
 
@@ -93,22 +99,33 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Remove task if ViewTaskActivity returns RESULT_OK
-        if (requestCode == DELETE_TASK) {
-            if (resultCode == RESULT_OK) {
-                Task task = data.getParcelableExtra(TASK_MESSAGE);
-                lastDeleted = task;
-                listAdapter.remove(task);
+        // Handle result of ViewTaskActivity
+        if (requestCode == VIEW_TASK) {
+            switch (resultCode) {
+                case RESULT_DELETE:
+                    Task taskToDelete = data.getParcelableExtra(TASK_MESSAGE);
+                    lastDeleted = new Task(taskToDelete);
+                    listAdapter.remove(taskToDelete);
 
-                // Show snackbar with option to undo removal
-                Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Task deleted.", Snackbar.LENGTH_LONG);
-                deleteSnackbar.setAction("Undo", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        listAdapter.add(lastDeleted);
-                    }
-                });
-                deleteSnackbar.show();
+                    // Show snackbar with option to undo removal
+                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Task deleted.", Snackbar.LENGTH_LONG);
+                    deleteSnackbar.setAction("Undo", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            listAdapter.add(lastDeleted);
+                        }
+                    });
+                    deleteSnackbar.show();
+                    break;
+
+                case RESULT_EDIT:
+                    Task newTask = data.getParcelableExtra(TASK_MESSAGE);
+                    Task originalTask = data.getParcelableExtra(TASK_MESSAGE_ORIGINAL);
+
+                    // Replace old task
+                    listAdapter.remove(originalTask);
+                    listAdapter.add(newTask);
+                    break;
             }
         }
     }
@@ -157,33 +174,34 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     }
 
                     builder.setMessage("Delete these tasks?")
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            listAdapter.deleteSelected();
-                            actionMode.finish();
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    listAdapter.deleteSelected();
+                                    actionMode.finish();
 
-                            // Show snackbar with option to undo removal
-                            Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Tasks deleted.", Snackbar.LENGTH_LONG);
-                            deleteSnackbar.setAction("Undo", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    listAdapter.undoRemoval();
+                                    // Show snackbar with option to undo removal
+                                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Tasks deleted.", Snackbar.LENGTH_LONG);
+                                    deleteSnackbar.setAction("Undo", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            listAdapter.undoRemoval();
+                                        }
+                                    });
+                                    deleteSnackbar.show();
                                 }
-                            });
-                            deleteSnackbar.show();
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            actionMode.finish();
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    actionMode.finish();
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
                     return true;
 
                 case R.id.action_complete_multiple:
-                    // TODO implement marking tasks as complete, create task class
+                    // TODO implement marking tasks as complete
+                    Toast.makeText(ToDoListActivity.this, "Tasks marked as completed.", Toast.LENGTH_SHORT).show();
                     actionMode.finish();
                     return true;
 

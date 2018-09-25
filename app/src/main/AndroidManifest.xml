@@ -31,8 +31,8 @@
         </activity>
         <activity
             android:name=".todolist.ViewTaskActivity"
-            android:parentActivityName=".todolist.ToDoListActivity"
             android:label="@string/title_activity_view_task"
+            android:parentActivityName=".todolist.ToDoListActivity"
             android:theme="@style/AppTheme.NoActionBar">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
@@ -42,6 +42,17 @@
         </activity>
         <activity android:name=".authentication.LogInActivity" />
         <activity android:name=".HouseholdManagerActivity" />
+        <activity
+            android:name=".todolist.EditTaskActivity"
+            android:label="@string/title_activity_edit_task"
+            android:parentActivityName=".todolist.ViewTaskActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".todolist.ViewTaskActivity" />
+        </activity>
     </application>
 
 </manifest>

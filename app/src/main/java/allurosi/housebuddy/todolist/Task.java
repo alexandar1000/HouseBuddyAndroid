@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 public class Task implements Comparable<Task>, Parcelable {
 
     private String name;
-    private String description = "This task has no description.";
+    private String description;
 
     Task(String name) {
         this.name = name;
@@ -16,6 +16,12 @@ public class Task implements Comparable<Task>, Parcelable {
     Task(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    // Copy constructor
+    Task(Task original) {
+        this.name = original.name;
+        this.description = original.description;
     }
 
     // TODO: additional constructor with list of people
@@ -47,7 +53,11 @@ public class Task implements Comparable<Task>, Parcelable {
         }
 
         Task task = (Task) obj;
-        return name.equals(task.getName()) && description.equals(task.getDescription());
+        if (description != null) {
+            return name.equals(task.getName()) && description.equals(task.getDescription());
+        } else {
+            return name.equals(task.getName());
+        }
     }
 
     @Override
