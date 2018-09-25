@@ -18,4 +18,6 @@
     <string name="utility_reservation">Utility Reservation</string>
     <string name="expense_tracker">Expense Tracker</string>
     <string name="title_activity_view_task">ViewTaskActivity</string>
+    <string name="facebook_app_id">338645476703466</string>
+    <string name="fb_login_protocol_scheme">fb338645476703466</string>
 </resources>
