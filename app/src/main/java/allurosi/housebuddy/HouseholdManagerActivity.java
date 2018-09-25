@@ -9,6 +9,7 @@ import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import allurosi.housebuddy.authentication.LogInActivity;
 import allurosi.housebuddy.todolist.ToDoListActivity;
 
 public class HouseholdManagerActivity extends Activity {
@@ -39,8 +40,7 @@ public class HouseholdManagerActivity extends Activity {
         mLogOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAuth.signOut();
-                setContentView(R.layout.log_in_layout);
+                signOut();
             }
         });
 
@@ -50,6 +50,12 @@ public class HouseholdManagerActivity extends Activity {
                 buttonToDoList();
             }
         });
+    }
+
+    private void signOut() {
+        mAuth.signOut();
+        Intent intent = new Intent(this, LogInActivity.class);
+        startActivity(intent);
     }
 
     public void buttonToDoList() {

@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.SignInButton;
@@ -30,14 +29,12 @@ public class LogInActivity extends AppCompatActivity {
 
     private EditText mEmailInput;
     private EditText mPasswordInput;
-    private TextView mLoggedInUser;
 
     private Button mLogInButton;
     private Button mSignUpButton;
     private SignInButton mGoogleSignIn;
     private Button mFacebookSignIn;
 
-    private Button mLogOutButton;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,10 +46,8 @@ public class LogInActivity extends AppCompatActivity {
         mPasswordInput = (EditText) findViewById(R.id.passwordInput);
         mLogInButton = (Button) findViewById(R.id.logInButton);
         mSignUpButton = (Button) findViewById(R.id.signUpButton);
-        mLogOutButton = (Button) findViewById(R.id.logOutButton);
         mGoogleSignIn = (SignInButton) findViewById(R.id.googleSignIn);
         mFacebookSignIn = (Button) findViewById(R.id.facebookSignIn);
-        mLoggedInUser = (TextView) findViewById(R.id.loggedInUser);
 
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,12 +63,6 @@ public class LogInActivity extends AppCompatActivity {
             }
         });
 
-        mLogOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAuth.signOut();
-            }
-        });
     }
 
     @Override
@@ -122,6 +111,7 @@ public class LogInActivity extends AppCompatActivity {
     private void logInUser() {
         String email = mEmailInput.getText().toString();
         String password = mPasswordInput.getText().toString();
+
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
