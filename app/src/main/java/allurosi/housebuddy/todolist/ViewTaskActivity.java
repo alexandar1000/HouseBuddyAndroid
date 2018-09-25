@@ -17,7 +17,6 @@ import static allurosi.housebuddy.todolist.ToDoListActivity.TASK_MESSAGE;
 public class ViewTaskActivity extends AppCompatActivity {
 
     private Task mTask;
-    private int resultCode = RESULT_CANCELED;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +27,7 @@ public class ViewTaskActivity extends AppCompatActivity {
         actionToolBar.setTitle("");
         TextView textTaskDesc = findViewById(R.id.view_task_description);
 
+        // Add back button to toolbar
         setSupportActionBar(actionToolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
