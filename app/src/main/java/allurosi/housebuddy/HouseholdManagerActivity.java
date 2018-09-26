@@ -43,18 +43,6 @@ public class HouseholdManagerActivity extends Activity {
                 setContentView(R.layout.log_in_layout);
             }
         });
-
-        mToDoListBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                buttonToDoList();
-            }
-        });
-    }
-
-    public void buttonToDoList() {
-        Intent intent = new Intent(this, ToDoListActivity.class);
-        startActivity(intent);
     }
 
     public void buttonToDoList(View view) {
