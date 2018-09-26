@@ -9,6 +9,7 @@ import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import allurosi.housebuddy.shoppinglist.ShoppingListActivity;
 import allurosi.housebuddy.todolist.ToDoListActivity;
 
 public class HouseholdManagerActivity extends Activity {
@@ -50,6 +51,12 @@ public class HouseholdManagerActivity extends Activity {
                 buttonToDoList();
             }
         });
+        mShoppingListBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buttonShoppingList();
+            }
+        });
     }
 
     public void buttonToDoList() {
@@ -62,4 +69,13 @@ public class HouseholdManagerActivity extends Activity {
         startActivity(intent);
     }
 
+    public void buttonShoppingList() {
+        Intent intent = new Intent(this, ShoppingListActivity.class);
+        startActivity(intent);
+    }
+
+    public void buttonShoppingList(View view) {
+        Intent intent = new Intent(this, ShoppingListActivity.class);
+        startActivity(intent);
+    }
 }

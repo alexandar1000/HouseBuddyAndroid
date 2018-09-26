@@ -53,6 +53,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".todolist.ViewTaskActivity" />
         </activity>
+        <activity android:name=".shoppinglist.ShoppingListActivity"></activity>
     </application>
 
 </manifest>
