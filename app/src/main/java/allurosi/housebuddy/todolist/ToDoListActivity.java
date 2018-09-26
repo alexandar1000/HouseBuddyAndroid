@@ -107,6 +107,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
+                // DialogFragment is removed
                 if (fragmentManager.getBackStackEntryCount() == 0) {
                     onCloseNewTaskDialog();
                 }
