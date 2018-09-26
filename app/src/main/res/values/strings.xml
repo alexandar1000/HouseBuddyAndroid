@@ -50,4 +50,5 @@
     </plurals>
     <string name="task_saved">Task saved.</string>
     <string name="mark_not_completed">Mark as not completed</string>
+    <string name="title_activity_expenses_list">ExpensesListActivity</string>
 </resources>

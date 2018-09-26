@@ -35,6 +35,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     public static final String TASK_MESSAGE = "Task";
 
     public static final int VIEW_TASK = 1;
+
     public static final int RESULT_DELETE = 1;
     public static final int RESULT_EDIT = 2;
 
