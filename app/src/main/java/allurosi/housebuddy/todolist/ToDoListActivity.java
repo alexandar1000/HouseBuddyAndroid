@@ -103,7 +103,17 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         }
         fab.hide();
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                if (fragmentManager.getBackStackEntryCount() == 0) {
+                    onCloseNewTaskDialog();
+                }
+            }
+        });
+
+        // Add DialogFragment with transaction
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         transaction.add(R.id.to_do_list_root_view, addTaskDialogFragment).addToBackStack(null).commit();

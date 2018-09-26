@@ -74,12 +74,6 @@ public class AddTaskDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    @Override
-    public void dismiss() {
-        listener.onCloseNewTaskDialog();
-        super.dismiss();
-    }
-
     public void setListener(ToDoListActivity parent) {
         listener = (NewTaskDialogListener) parent;
     }
@@ -117,6 +111,15 @@ public class AddTaskDialogFragment extends DialogFragment {
                     }
                 })
                 .show();
+    }
+
+    @Override
+    public void dismiss() {
+        listener.onCloseNewTaskDialog();
+        if (getFragmentManager() != null) {
+            getFragmentManager().popBackStack();
+        }
+        super.dismiss();
     }
 
     // Deprecated method to support lower APIs
