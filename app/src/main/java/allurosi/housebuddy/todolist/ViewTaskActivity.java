@@ -91,6 +91,15 @@ public class ViewTaskActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_complete:
+                originalTask = new Task(mTask);
+                mTask.setCompleted(true);
+
+                Intent returnIntent = new Intent(ViewTaskActivity.this, ToDoListActivity.class);
+                returnIntent.putExtra(TASK_MESSAGE, mTask);
+                returnIntent.putExtra(TASK_MESSAGE_ORIGINAL, originalTask);
+                setResult(RESULT_EDIT, returnIntent);
+                mResultCode = RESULT_EDIT;
+
                 Toast.makeText(this, getResources().getQuantityString(R.plurals.task_marked_completed, 1), Toast.LENGTH_SHORT).show();
                 finish();
                 return true;

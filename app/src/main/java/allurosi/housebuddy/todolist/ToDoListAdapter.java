@@ -48,6 +48,13 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
         // Add tag as identifier
         checkBox.setTag(position);
 
+        // Mark completed tasks text green
+        if (task.isCompleted()) {
+            foodName.setTextColor(mContext.getResources().getColor(R.color.colorCompletedText));
+        } else {
+            foodName.setTextColor(mContext.getResources().getColor(android.R.color.black));
+        }
+
         if (ToDoListActivity.isActionMode) {
             // Manages adding and removing from selection when an item is directly selected
             // (When notifyDataSetInvalidated is called)
@@ -98,6 +105,14 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
     void deleteSelected() {
         for (Task task : selection) {
             toDoList.remove(task);
+        }
+
+        notifyDataSetChanged();
+    }
+
+    void markSelectionCompleted() {
+        for (Task task : selection) {
+            task.setCompleted(true);
         }
 
         notifyDataSetChanged();

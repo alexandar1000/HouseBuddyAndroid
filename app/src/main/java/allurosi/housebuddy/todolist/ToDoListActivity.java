@@ -230,12 +230,11 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                                     actionMode.finish();
                                 }
                             })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                     return true;
 
                 case R.id.action_complete_multiple:
-                    // TODO implement marking tasks as complete
+                    listAdapter.markSelectionCompleted();
                     Toast.makeText(ToDoListActivity.this, getResources().getQuantityString(R.plurals.task_marked_completed, selectionSize), Toast.LENGTH_SHORT).show();
                     actionMode.finish();
                     return true;
