@@ -1,10 +1,13 @@
 package allurosi.housebuddy.todolist;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -36,6 +40,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
     private static List<Task> toDoList = new ArrayList<>();
     private ToDoListAdapter listAdapter;
+    private FloatingActionButton fab;
     private Task lastDeleted;
 
     public static Boolean isActionMode = false;
@@ -46,11 +51,13 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_to_do_list);
 
-        getSupportActionBar().setTitle("To Do List");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("To Do List");
+        }
 
         // TODO: change to RecyclerView in the future?
         final ListView toDoListView = findViewById(R.id.to_do_list);
-        FloatingActionButton fab = findViewById(R.id.add_task_fab);
+        fab = findViewById(R.id.add_task_fab);
 
         listAdapter = new ToDoListAdapter(this, R.layout.to_do_list_item, toDoList);
         toDoListView.setAdapter(listAdapter);
@@ -89,12 +96,37 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     private void addTask() {
         AddTaskDialogFragment addTaskDialogFragment = new AddTaskDialogFragment();
         addTaskDialogFragment.setListener(this);
-        addTaskDialogFragment.show(getSupportFragmentManager(), "AddTaskFragment");
+
+        // Hide to do list action bar and fab
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+        fab.hide();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        transaction.add(R.id.to_do_list_root_view, addTaskDialogFragment).addToBackStack(null).commit();
     }
 
     @Override
-    public void onFinishNewTaskDialog(Task newTask) {
+    public void onAddNewTask(Task newTask) {
         listAdapter.add(newTask);
+    }
+
+    @Override
+    public void onCloseNewTaskDialog() {
+        // Hide keyboard after closing the dialog
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+
+        // Return toolbar and fab
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().show();
+        }
+        fab.show();
     }
 
     @Override

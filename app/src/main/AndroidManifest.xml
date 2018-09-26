@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="allurosi.housebuddy">
 
-    <!-- TODO: Remove name if DB is done -->
+    <!-- TODO: Remove android:name if DB is done -->
     <application
         android:name=".HouseBuddy"
         android:allowBackup="true"
