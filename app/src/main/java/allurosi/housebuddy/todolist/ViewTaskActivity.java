@@ -26,6 +26,8 @@ public class ViewTaskActivity extends AppCompatActivity {
     public static final int EDIT_TASK = 1;
 
     private Task mTask;
+    private Task originalTask;
+    private int mResultCode;
 
     private Toolbar actionToolBar;
     private TextView textTaskDesc;
@@ -58,7 +60,7 @@ public class ViewTaskActivity extends AppCompatActivity {
         if (requestCode == EDIT_TASK) {
             if (resultCode == RESULT_OK) {
                 mTask = data.getParcelableExtra(TASK_MESSAGE);
-                Task originalTask = data.getParcelableExtra(TASK_MESSAGE_ORIGINAL);
+                originalTask = data.getParcelableExtra(TASK_MESSAGE_ORIGINAL);
                 actionToolBar.setTitle(mTask.getName());
                 textTaskDesc.setText(mTask.getDescription());
 
@@ -66,6 +68,7 @@ public class ViewTaskActivity extends AppCompatActivity {
                 returnIntent.putExtra(TASK_MESSAGE, mTask);
                 returnIntent.putExtra(TASK_MESSAGE_ORIGINAL, originalTask);
                 setResult(RESULT_EDIT, returnIntent);
+                mResultCode = RESULT_EDIT;
 
                 Toast.makeText(this, "Task saved.", Toast.LENGTH_SHORT).show();
             }
@@ -111,8 +114,15 @@ public class ViewTaskActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         // Set result to RESULT_DELETE and add intent with task
                         Intent returnIntent = new Intent(ViewTaskActivity.this, ToDoListActivity.class);
-                        returnIntent.putExtra(TASK_MESSAGE, mTask);
-                        setResult(RESULT_DELETE, returnIntent);
+                        if (mResultCode == RESULT_EDIT) {
+                            returnIntent.putExtra(TASK_MESSAGE, originalTask);
+                            setResult(RESULT_DELETE, returnIntent);
+                            mResultCode = RESULT_DELETE;
+                        } else {
+                            returnIntent.putExtra(TASK_MESSAGE, mTask);
+                            setResult(RESULT_DELETE, returnIntent);
+                            mResultCode = RESULT_DELETE;
+                        }
                         finish();
                     }
                 })
@@ -121,7 +131,6 @@ public class ViewTaskActivity extends AppCompatActivity {
 
                     }
                 })
-                .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
                 return true;
 

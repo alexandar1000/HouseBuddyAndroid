@@ -53,10 +53,15 @@ public class Task implements Comparable<Task>, Parcelable {
         }
 
         Task task = (Task) obj;
-        if (description != null) {
-            return name.equals(task.getName()) && description.equals(task.getDescription());
-        } else {
+        if (description == null ^ task.description == null) {
+            // Only one of both descriptions is null, return false
+            return false;
+        } else if (description == null) {
+            // Both are null, compare names
             return name.equals(task.getName());
+        } else {
+            // Both are not null
+            return name.equals(task.getName()) && description.equals(task.getDescription());
         }
     }
 

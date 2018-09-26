@@ -108,6 +108,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     listAdapter.remove(taskToDelete);
 
                     // Show snackbar with option to undo removal
+                    // TODO: maybe change task to the actual name
                     Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Task deleted.", Snackbar.LENGTH_LONG);
                     deleteSnackbar.setAction("Undo", new View.OnClickListener() {
                         @Override

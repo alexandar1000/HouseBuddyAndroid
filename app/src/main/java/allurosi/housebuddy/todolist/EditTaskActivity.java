@@ -1,7 +1,10 @@
 package allurosi.housebuddy.todolist;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -75,10 +78,10 @@ public class EditTaskActivity extends AppCompatActivity {
                 if (newName.equals("")) {
                     Toast.makeText(EditTaskActivity.this, "Please enter a name.", Toast.LENGTH_SHORT).show();
                 } else {
-                    mTask.setName(textTaskName.getText().toString());
+                    mTask.setName(newName);
 
                     if (!newDesc.equals("")) {
-                        mTask.setDescription(textTaskDesc.getText().toString());
+                        mTask.setDescription(newDesc);
                     }
 
                     returnIntent.putExtra(TASK_MESSAGE, mTask);
@@ -92,4 +95,44 @@ public class EditTaskActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        String newName = textTaskName.getText().toString();
+        String newDesc = textTaskDesc.getText().toString();
+
+        mTask.setName(newName);
+        if (!newDesc.equals("")) {
+            mTask.setDescription(newDesc);
+        }
+
+        if (mTask.equals(originalTask)) {
+            super.onBackPressed();
+        } else {
+            showDiscardWarning();
+        }
+    }
+
+    private void showDiscardWarning() {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            builder = new AlertDialog.Builder(EditTaskActivity.this, android.R.style.ThemeOverlay_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(EditTaskActivity.this);
+        }
+
+        builder.setMessage("Discard changes?")
+                .setPositiveButton("Discard", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
+    }
+
 }
