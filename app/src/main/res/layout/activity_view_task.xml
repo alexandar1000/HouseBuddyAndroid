@@ -26,6 +26,7 @@
         android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:hint="This task has no description."
+        android:hint="@string/task_no_description"
+        android:textIsSelectable="true"
         android:textSize="16sp" />
 </RelativeLayout>

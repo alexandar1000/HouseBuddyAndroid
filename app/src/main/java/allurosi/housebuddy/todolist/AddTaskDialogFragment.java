@@ -87,7 +87,7 @@ public class AddTaskDialogFragment extends DialogFragment {
     private boolean createTask(String newTaskName, String newTaskDescription) {
         // Notify the user if no name is supplied before pressing create
         if (newTaskName.isEmpty()) {
-            Toast.makeText(getActivity(), "Please enter a name.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), getString(R.string.enter_name_alert), Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -105,8 +105,8 @@ public class AddTaskDialogFragment extends DialogFragment {
             builder = new AlertDialog.Builder(mContext);
         }
 
-        builder.setMessage("Discard changes?")
-                .setPositiveButton("Discard", new DialogInterface.OnClickListener() {
+        builder.setMessage(getString(R.string.discard_changes_question))
+                .setPositiveButton(getString(R.string.discard), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dismiss();
                     }

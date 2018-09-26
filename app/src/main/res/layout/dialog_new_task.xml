@@ -29,7 +29,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="New Task"
+                android:text="@string/new_task"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
                 android:textColor="@android:color/white" />
 
@@ -41,7 +41,7 @@
                 android:gravity="center"
                 android:paddingLeft="2dp"
                 android:paddingRight="2dp"
-                android:text="Save"
+                android:text="@string/save"
                 android:textColor="@android:color/white" />
 
         </LinearLayout>
@@ -66,7 +66,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:ems="10"
-            android:hint="Name"
+            android:hint="@string/name"
             android:inputType="textPersonName"
             android:singleLine="true" />
 
@@ -77,7 +77,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:ems="10"
-            android:hint="Description"
+            android:hint="@string/description"
             android:inputType="textMultiLine" />
     </LinearLayout>
 

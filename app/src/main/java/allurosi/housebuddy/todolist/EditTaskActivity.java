@@ -76,7 +76,7 @@ public class EditTaskActivity extends AppCompatActivity {
 
                 // Only change the name and description if they are not empty
                 if (newName.equals("")) {
-                    Toast.makeText(EditTaskActivity.this, "Please enter a name.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditTaskActivity.this, getString(R.string.enter_name_alert), Toast.LENGTH_SHORT).show();
                 } else {
                     mTask.setName(newName);
 
@@ -121,8 +121,8 @@ public class EditTaskActivity extends AppCompatActivity {
             builder = new AlertDialog.Builder(EditTaskActivity.this);
         }
 
-        builder.setMessage("Discard changes?")
-                .setPositiveButton("Discard", new DialogInterface.OnClickListener() {
+        builder.setMessage(getString(R.string.discard_changes_question))
+                .setPositiveButton(getString(R.string.discard), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         finish();
                     }

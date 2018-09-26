@@ -4,11 +4,11 @@
     <item
         android:id="@+id/action_complete_multiple"
         android:icon="@drawable/ic_check_white"
-        android:title="Mark as done" />
+        android:title="@string/mark_completed" />
 
     <item
         android:id="@+id/action_delete_multiple"
         android:icon="@drawable/ic_delete_white"
-        android:title="Delete" />
+        android:title="@string/delete" />
 
 </menu>

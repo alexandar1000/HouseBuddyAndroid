@@ -52,7 +52,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         setContentView(R.layout.activity_to_do_list);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("To Do List");
+            getSupportActionBar().setTitle(getString(R.string.to_do_list));
         }
 
         // TODO: change to RecyclerView in the future?
@@ -141,8 +141,8 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
                     // Show snackbar with option to undo removal
                     // TODO: maybe change task to the actual name
-                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Task deleted.", Snackbar.LENGTH_LONG);
-                    deleteSnackbar.setAction("Undo", new View.OnClickListener() {
+                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, 1), Snackbar.LENGTH_LONG);
+                    deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             listAdapter.add(lastDeleted);
@@ -197,6 +197,8 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
         @Override
         public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
+            final int selectionSize = listAdapter.selectionSize();
+
             switch (menuItem.getItemId()) {
                 case R.id.action_delete_multiple:
                     AlertDialog.Builder builder;
@@ -206,15 +208,15 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                         builder = new AlertDialog.Builder(ToDoListActivity.this);
                     }
 
-                    builder.setMessage("Delete these tasks?")
+                    builder.setMessage(getResources().getQuantityString(R.plurals.delete_task_question, selectionSize))
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     listAdapter.deleteSelected();
                                     actionMode.finish();
 
                                     // Show snackbar with option to undo removal
-                                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Tasks deleted.", Snackbar.LENGTH_LONG);
-                                    deleteSnackbar.setAction("Undo", new View.OnClickListener() {
+                                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, selectionSize), Snackbar.LENGTH_LONG);
+                                    deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
                                             listAdapter.undoRemoval();
@@ -234,7 +236,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
                 case R.id.action_complete_multiple:
                     // TODO implement marking tasks as complete
-                    Toast.makeText(ToDoListActivity.this, "Tasks marked as completed.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ToDoListActivity.this, getResources().getQuantityString(R.plurals.task_marked_completed, selectionSize), Toast.LENGTH_SHORT).show();
                     actionMode.finish();
                     return true;
 

@@ -61,7 +61,7 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
             checkBox.setVisibility(View.VISIBLE);
 
             // Set contextual action bar title
-            ToDoListActivity.mActionMode.setTitle(selection.size() + " items selected");
+            ToDoListActivity.mActionMode.setTitle(mContext.getResources().getQuantityString(R.plurals.items_selected, selection.size(), selection.size()));
         } else {
             // Remove and reset checkboxes
             checkBox.setVisibility(View.GONE);
@@ -77,25 +77,25 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
         Collections.sort(toDoList);
     }
 
-    public boolean isSelected(Task task) {
+    boolean isSelected(Task task) {
         return selection.contains(task);
     }
 
-    public void addToSelection(Task task) {
+    void addToSelection(Task task) {
         selection.add(task);
         notifyDataSetInvalidated();
     }
 
-    public void removeFromSelection(Task task) {
+    void removeFromSelection(Task task) {
         selection.remove(task);
         notifyDataSetInvalidated();
     }
 
-    public void clearSelection() {
+    void clearSelection() {
         selection.clear();
     }
 
-    public void deleteSelected() {
+    void deleteSelected() {
         for (Task task : selection) {
             toDoList.remove(task);
         }
@@ -103,7 +103,11 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
         notifyDataSetChanged();
     }
 
-    public void undoRemoval() {
+    int selectionSize() {
+        return selection.size();
+    }
+
+    void undoRemoval() {
         toDoList.addAll(selection);
         notifyDataSetChanged();
     }
@@ -133,7 +137,7 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
                 selection.remove(selectedTask);
             }
 
-            ToDoListActivity.mActionMode.setTitle(selection.size() + " items selected");
+            ToDoListActivity.mActionMode.setTitle(mContext.getResources().getQuantityString(R.plurals.items_selected, selection.size(), selection.size()));
         }
     };
 

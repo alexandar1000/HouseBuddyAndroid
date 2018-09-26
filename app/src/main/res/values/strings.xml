@@ -19,4 +19,34 @@
     <string name="expense_tracker">Expense Tracker</string>
     <string name="title_activity_view_task">ViewTaskActivity</string>
     <string name="title_activity_edit_task">EditTaskActivity</string>
+    <plurals name="task_deleted">
+        <item quantity="one">Task deleted.</item>
+        <item quantity="other">Tasks deleted.</item>
+    </plurals>
+    <plurals name="delete_task_question">
+        <item quantity="one">Delete this task?</item>
+        <item quantity="other">Delete these tasks?</item>
+    </plurals>
+    <plurals name="task_marked_completed">
+        <item quantity="one">Task marked as completed.</item>
+        <item quantity="other">Tasks marked as completed.</item>
+    </plurals>
+    <string name="action_undo">Undo</string>
+    <string name="task_no_description">This task has no description.</string>
+    <string name="description">Description</string>
+    <string name="name">Name</string>
+    <string name="new_task">New Task</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="mark_completed">Mark as completed</string>
+    <string name="edit_task">Edit task</string>
+    <string name="delete_task">Delete task</string>
+    <string name="enter_name_alert">Please enter a name.</string>
+    <string name="discard">Discard</string>
+    <string name="discard_changes_question">Discard changes?</string>
+    <plurals name="items_selected">
+        <item quantity="one">%d item selected.</item>
+        <item quantity="other">%d items selected.</item>
+    </plurals>
+    <string name="task_saved">Task saved.</string>
 </resources>

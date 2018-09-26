@@ -70,7 +70,7 @@ public class ViewTaskActivity extends AppCompatActivity {
                 setResult(RESULT_EDIT, returnIntent);
                 mResultCode = RESULT_EDIT;
 
-                Toast.makeText(this, "Task saved.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.task_saved), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -91,7 +91,7 @@ public class ViewTaskActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_complete:
-                Toast.makeText(this, "Task marked as completed.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getResources().getQuantityString(R.plurals.task_marked_completed, 1), Toast.LENGTH_SHORT).show();
                 finish();
                 return true;
 
@@ -109,7 +109,7 @@ public class ViewTaskActivity extends AppCompatActivity {
                     builder = new AlertDialog.Builder(ViewTaskActivity.this);
                 }
 
-                builder.setMessage("Delete this task?")
+                builder.setMessage(getResources().getQuantityString(R.plurals.delete_task_question, 1))
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Set result to RESULT_DELETE and add intent with task

@@ -24,7 +24,8 @@
             android:background="@android:color/transparent"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:inputType="textPersonName"/>
     </android.support.v7.widget.Toolbar>
 
     <EditText
@@ -39,8 +40,9 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
         android:background="@android:color/transparent"
+        android:inputType="textMultiLine"
         android:gravity="top"
-        android:hint="This task has no description."
+        android:hint="@string/task_no_description"
         android:selectAllOnFocus="true"
         android:textSize="16sp" />
 </RelativeLayout>
