@@ -59,9 +59,16 @@ public class HouseholdManagerActivity extends Activity {
         mAuth.signOut();
         LoginManager.getInstance().logOut();
 
+
+        moveToLogInpage();
+
+    }
+
+    private void moveToLogInpage() {
         Intent intent = new Intent(this, LogInActivity.class);
         startActivity(intent);
     }
+
 
     public void buttonToDoList() {
         Intent intent = new Intent(this, ToDoListActivity.class);

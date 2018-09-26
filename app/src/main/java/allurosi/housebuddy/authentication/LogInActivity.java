@@ -280,7 +280,4 @@ public class LogInActivity extends AppCompatActivity {
         Intent intent = new Intent(this, HouseholdManagerActivity.class);
         startActivity(intent);
     }
-
-
-
 }
