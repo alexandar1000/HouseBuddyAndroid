@@ -3,9 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="allurosi.housebuddy">
 
-    <!--<uses-permission android:name="android.permission.INTERNET"/>-->
-
-    <!-- TODO: Remove name if DB is done -->
+    <!-- TODO: Remove android:name if DB is done -->
     <application
         android:name=".HouseBuddy"
         android:allowBackup="true"
@@ -34,9 +32,9 @@
         </activity>
         <activity
             android:name=".todolist.ViewTaskActivity"
-            android:parentActivityName=".todolist.ToDoListActivity"
             android:label="@string/title_activity_view_task"
-            android:theme="@style/NoActionBar">
+            android:parentActivityName=".todolist.ToDoListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -63,6 +61,27 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".todolist.EditTaskActivity"
+            android:label="@string/title_activity_edit_task"
+            android:parentActivityName=".todolist.ViewTaskActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".todolist.ViewTaskActivity" />
+        </activity>
+        <activity
+            android:name=".expensetracker.ExpensesActivity"
+            android:label="@string/title_activity_expenses_list"
+            android:parentActivityName=".HouseholdManagerActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".HouseholdManagerActivity" />
         </activity>
     </application>
 

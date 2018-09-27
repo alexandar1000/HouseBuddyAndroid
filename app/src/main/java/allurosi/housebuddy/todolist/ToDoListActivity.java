@@ -1,9 +1,14 @@
 package allurosi.housebuddy.todolist;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.Nullable;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ActionMode;
@@ -11,9 +16,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,13 +28,21 @@ import java.util.List;
 
 import allurosi.housebuddy.R;
 
+import static allurosi.housebuddy.todolist.ViewTaskActivity.TASK_MESSAGE_ORIGINAL;
+
 public class ToDoListActivity extends AppCompatActivity implements AddTaskDialogFragment.NewTaskDialogListener {
 
     public static final String TASK_MESSAGE = "Task";
-    public static final int DELETE_TASK = 1;
+
+    public static final int VIEW_TASK = 1;
+
+    public static final int RESULT_DELETE = 1;
+    public static final int RESULT_EDIT = 2;
 
     private static List<Task> toDoList = new ArrayList<>();
     private ToDoListAdapter listAdapter;
+    private FloatingActionButton fab;
+    private Task lastDeleted;
 
     public static Boolean isActionMode = false;
     public static ActionMode mActionMode = null;
@@ -37,11 +52,13 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_to_do_list);
 
-        getSupportActionBar().setTitle("To Do List");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(getString(R.string.to_do_list));
+        }
 
         // TODO: change to RecyclerView in the future?
         final ListView toDoListView = findViewById(R.id.to_do_list);
-        FloatingActionButton fab = findViewById(R.id.add_task_fab);
+        fab = findViewById(R.id.add_task_fab);
 
         listAdapter = new ToDoListAdapter(this, R.layout.to_do_list_item, toDoList);
         toDoListView.setAdapter(listAdapter);
@@ -56,7 +73,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
                 Intent intent = new Intent(ToDoListActivity.this, ViewTaskActivity.class);
                 intent.putExtra(TASK_MESSAGE, clickedTask);
-                startActivityForResult(intent, DELETE_TASK);
+                startActivityForResult(intent, VIEW_TASK);
             }
         });
 
@@ -80,22 +97,80 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     private void addTask() {
         AddTaskDialogFragment addTaskDialogFragment = new AddTaskDialogFragment();
         addTaskDialogFragment.setListener(this);
-        addTaskDialogFragment.show(getSupportFragmentManager(), "AddTaskFragment");
+
+        // Hide to do list action bar and fab
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+        fab.hide();
+
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                // DialogFragment is removed
+                if (fragmentManager.getBackStackEntryCount() == 0) {
+                    onCloseNewTaskDialog();
+                }
+            }
+        });
+
+        // Add DialogFragment with transaction
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        transaction.add(R.id.to_do_list_root_view, addTaskDialogFragment).addToBackStack(null).commit();
     }
 
     @Override
-    public void onFinishNewTaskDialog(Task newTask) {
+    public void onAddNewTask(Task newTask) {
         listAdapter.add(newTask);
     }
 
     @Override
+    public void onCloseNewTaskDialog() {
+        // Hide keyboard after closing the dialog
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+
+        // Return toolbar and fab
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().show();
+        }
+        fab.show();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Remove task if ViewTaskActivity returns RESULT_OK
-        if (requestCode == DELETE_TASK) {
-            if (resultCode == RESULT_OK) {
-                // TODO: implement undo + add Snackbar
-                Task task = data.getParcelableExtra(TASK_MESSAGE);
-                listAdapter.remove(task);
+        // Handle result of ViewTaskActivity
+        if (requestCode == VIEW_TASK) {
+            switch (resultCode) {
+                case RESULT_DELETE:
+                    Task taskToDelete = data.getParcelableExtra(TASK_MESSAGE);
+                    lastDeleted = new Task(taskToDelete);
+                    listAdapter.remove(taskToDelete);
+
+                    // Show snackbar with option to undo removal
+                    // TODO: maybe change task to the actual name
+                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, 1), Snackbar.LENGTH_LONG);
+                    deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            listAdapter.add(lastDeleted);
+                        }
+                    });
+                    deleteSnackbar.show();
+                    break;
+
+                case RESULT_EDIT:
+                    Task newTask = data.getParcelableExtra(TASK_MESSAGE);
+                    Task originalTask = data.getParcelableExtra(TASK_MESSAGE_ORIGINAL);
+
+                    // Replace old task
+                    listAdapter.remove(originalTask);
+                    listAdapter.add(newTask);
+                    break;
             }
         }
     }
@@ -133,25 +208,46 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         }
 
         @Override
-        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+        public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
+            final int selectionSize = listAdapter.selectionSize();
+
             switch (menuItem.getItemId()) {
                 case R.id.action_delete_multiple:
-                    listAdapter.deleteSelected();
-                    actionMode.finish();
+                    AlertDialog.Builder builder;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        builder = new AlertDialog.Builder(ToDoListActivity.this, android.R.style.ThemeOverlay_Material_Dialog_Alert);
+                    } else {
+                        builder = new AlertDialog.Builder(ToDoListActivity.this);
+                    }
 
-                    // Show snackbar with option to undo removal
-                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), "Tasks removed.", Snackbar.LENGTH_LONG);
-                    deleteSnackbar.setAction("Undo", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            listAdapter.undoRemoval();
-                        }
-                    });
-                    deleteSnackbar.show();
+                    builder.setMessage(getResources().getQuantityString(R.plurals.delete_task_question, selectionSize))
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    listAdapter.deleteSelected();
+                                    actionMode.finish();
+
+                                    // Show snackbar with option to undo removal
+                                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, selectionSize), Snackbar.LENGTH_LONG);
+                                    deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            listAdapter.undoRemoval();
+                                        }
+                                    });
+                                    deleteSnackbar.show();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    actionMode.finish();
+                                }
+                            })
+                            .show();
                     return true;
 
                 case R.id.action_complete_multiple:
-                    // TODO implement marking tasks as complete, create task class
+                    listAdapter.markSelectionCompleted();
+                    Toast.makeText(ToDoListActivity.this, getResources().getQuantityString(R.plurals.task_marked_completed, selectionSize), Toast.LENGTH_SHORT).show();
                     actionMode.finish();
                     return true;
 

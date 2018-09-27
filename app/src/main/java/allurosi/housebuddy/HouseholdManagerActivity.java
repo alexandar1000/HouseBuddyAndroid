@@ -15,6 +15,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 import allurosi.housebuddy.authentication.LogInActivity;
+import allurosi.housebuddy.expensetracker.ExpensesActivity;
+import allurosi.housebuddy.expensetracker.ExpensesListAdapter;
 import allurosi.housebuddy.todolist.ToDoListActivity;
 
 public class HouseholdManagerActivity extends Activity {
@@ -75,7 +77,15 @@ public class HouseholdManagerActivity extends Activity {
 
 
     public void buttonToDoList() {
+
+//    public void buttonToDoList(View view) {
         Intent intent = new Intent(this, ToDoListActivity.class);
         startActivity(intent);
     }
+
+    public void buttonExpensesList(View view) {
+        Intent intent = new Intent(this, ExpensesActivity.class);
+        startActivity(intent);
+    }
+
 }

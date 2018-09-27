@@ -29,6 +29,7 @@
             android:id="@+id/toDoListBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="buttonToDoList"
             android:text="@string/to_do_list" />
 
         <Button
@@ -47,6 +48,7 @@
             android:id="@+id/expenseTrackerBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="buttonExpensesList"
             android:text="@string/expense_tracker" />
     </LinearLayout>
 
