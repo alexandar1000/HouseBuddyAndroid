@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="allurosi.housebuddy">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <!--<uses-permission android:name="android.permission.INTERNET"/>-->
 
     <!-- TODO: Remove name if DB is done -->
     <application
@@ -44,9 +45,10 @@
         </activity>
         <activity android:name=".authentication.LogInActivity" />
         <activity android:name=".HouseholdManagerActivity" />
-
+        <!--This first line of the following metadata might cause some errors in the future. It was a suggested solution because of a conflict about the facebook_app_id-->
+        <!--tools:replace="android:value"-->
         <meta-data android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id"/>
+            android:value="@string/facebook_application_id"/>
 
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
@@ -63,5 +65,7 @@
             </intent-filter>
         </activity>
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
 
 </manifest>
