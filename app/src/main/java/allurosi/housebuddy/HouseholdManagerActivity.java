@@ -66,9 +66,6 @@ public class HouseholdManagerActivity extends Activity {
                         moveToLogInpage();
                     }
                 });
-
-
-
     }
 
     private void moveToLogInpage() {
