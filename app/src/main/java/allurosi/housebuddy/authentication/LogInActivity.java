@@ -2,146 +2,82 @@ package allurosi.housebuddy.authentication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.facebook.CallbackManager;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import allurosi.housebuddy.HouseholdManagerActivity;
-import allurosi.housebuddy.R;
+import java.util.Arrays;
+import java.util.List;
 
-import static android.content.ContentValues.TAG;
+import allurosi.housebuddy.HouseholdManagerActivity;
 
 public class LogInActivity extends AppCompatActivity {
 
+    private static final int RC_SIGN_IN = 1;
     private FirebaseAuth mAuth;
 
     private EditText mEmailInput;
     private EditText mPasswordInput;
-    private TextView mLoggedInUser;
 
-    private Button mLogInButton;
-    private Button mSignUpButton;
-    private SignInButton mGoogleSignIn;
-    private Button mFacebookSignIn;
+    private GoogleSignInClient mGoogleSignInClient;
+    private CallbackManager mCallbackManager;
 
-    private Button mLogOutButton;
+    // Choose authentication providers
+    List<AuthUI.IdpConfig> providers = Arrays.asList(
+            new AuthUI.IdpConfig.EmailBuilder().build(),
+            new AuthUI.IdpConfig.GoogleBuilder().build(),
+            new AuthUI.IdpConfig.FacebookBuilder().build());
+
+
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.log_in_layout);
+//        setContentView(R.layout.log_in_layout);
 
-        mAuth = FirebaseAuth.getInstance();
-
-        mEmailInput = (EditText) findViewById(R.id.emailInput);
-        mPasswordInput = (EditText) findViewById(R.id.passwordInput);
-        mLogInButton = (Button) findViewById(R.id.logInButton);
-        mSignUpButton = (Button) findViewById(R.id.signUpButton);
-        mLogOutButton = (Button) findViewById(R.id.logOutButton);
-        mGoogleSignIn = (SignInButton) findViewById(R.id.googleSignIn);
-        mFacebookSignIn = (Button) findViewById(R.id.facebookSignIn);
-        mLoggedInUser = (TextView) findViewById(R.id.loggedInUser);
-
-        mSignUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signUpUser();
-            }
-        });
-
-        mLogInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                logInUser();
-            }
-        });
-
-        mLogOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAuth.signOut();
-            }
-        });
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+//                        .setLogo(R.drawable.my_great_logo)      // Set logo drawable
+//                        .setTheme(R.style.MySuperAppTheme)      // Set theme
+                        .build(),
+                RC_SIGN_IN);
     }
+
+    private void enterManager() {
+        Intent intent = new Intent(this, HouseholdManagerActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            Intent intent = new Intent(this, HouseholdManagerActivity.class);
-            startActivity(intent);
-        } else {
-            Toast.makeText(LogInActivity.this, "Authentication failed.",
-                    Toast.LENGTH_SHORT).show();
+        if (requestCode == RC_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+
+            if (resultCode == RESULT_OK) {
+                // Successfully signed in
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                enterManager();
+                // ...
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+            }
         }
-    }
-
-
-    private void signUpUser() {
-        String email = mEmailInput.getText().toString();
-        String password = mPasswordInput.getText().toString();
-
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(LogInActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-                    }
-                });
-    }
-
-    private void logInUser() {
-        String email = mEmailInput.getText().toString();
-        String password = mPasswordInput.getText().toString();
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LogInActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // ...
-                    }
-                });
     }
 
 }
