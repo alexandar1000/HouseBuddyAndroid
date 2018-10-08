@@ -41,15 +41,15 @@ import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.HOUS
 import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.KEY_HOUSEHOLD;
 import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.LOG_NAME;
 
-public class InviteUserDialog extends DialogFragment {
+public class InviteUserDialogFragment extends DialogFragment {
 
     public static final String KEY_INVITES = "invites";
     public static final String KEY_INVITE_CODE = "invite_code";
-    public static final String KEY_INVITER = "inviter";
 
     private Context mContext;
     private TextView inviteCodeView;
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+    // TODO: maybe store last invite code for if there's no internet
     private String mInviteCode = null;
     private DocumentReference mHouseholdRef;
 
@@ -98,6 +98,8 @@ public class InviteUserDialog extends DialogFragment {
                 Toast.makeText(mContext, R.string.code_copied, Toast.LENGTH_SHORT).show();
             }
         });
+
+        inviteCodeView.requestFocus();
 
         renewCodeButton.setOnClickListener(new View.OnClickListener() {
             @Override

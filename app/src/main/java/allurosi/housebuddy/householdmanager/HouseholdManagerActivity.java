@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -48,13 +49,13 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.household_manager_loading);
 
         Intent intent = getIntent();
         mUserId = intent.getStringExtra(USER_ID);
         mUserEmail = intent.getStringExtra(USER_EMAIL);
 
         if (mUserId != null) {
-            setContentView(R.layout.household_manager_loading);
             fetchUserData();
         } else {
             if (userHasHousehold()) {
@@ -161,7 +162,7 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.add(android.R.id.content, new InviteUserDialog()).addToBackStack(null).commit();
+        transaction.add(android.R.id.content, new InviteUserDialogFragment()).addToBackStack(null).commit();
     }
 
     public void buttonToDoList(View view) {
@@ -172,6 +173,11 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
     public void buttonExpensesList(View view) {
         Intent intent = new Intent(this, ExpensesActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        NavUtils.navigateUpFromSameTask(this);
     }
 
 }
