@@ -44,7 +44,14 @@
         <activity android:name=".authentication.LogInActivity" />
         <activity
             android:name=".householdmanager.HouseholdManagerActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:parentActivityName=".authentication.LogInActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+
+        <!-- Parent activity meta-data to support 4.0 and lower -->
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".authentication.LogInActivity" />
+        </activity>
         <!--This first line of the following metadata might cause some errors in the future. It was a suggested solution because of a conflict about the facebook_app_id-->
         <!--tools:replace="android:value"-->
         <meta-data android:name="com.facebook.sdk.ApplicationId"

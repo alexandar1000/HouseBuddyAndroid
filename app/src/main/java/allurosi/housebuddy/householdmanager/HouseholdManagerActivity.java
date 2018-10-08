@@ -95,12 +95,13 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
                         // TODO: add invite code function
                     } else {
                         // User is an existing user without a household
+                        // TODO: create and join household functionality
                         setContentView(R.layout.no_household_layout);
                     }
                 } else {
                     // User is a new user
                     setContentView(R.layout.no_household_layout);
-                    newUser();
+                    newUserDialog();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -111,7 +112,7 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
         });
     }
 
-    private void newUser() {
+    private void newUserDialog() {
         NewUserDialogFragment newUserDialogFragment = new NewUserDialogFragment();
         newUserDialogFragment.setListener(this);
 
@@ -139,7 +140,7 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.w(this.getClass().toString(), e);
+                Log.w(LOG_NAME, "Failed to add user info: " + e);
                 Toast.makeText(HouseholdManagerActivity.this, getResources().getString(R.string.account_updated_failed), Toast.LENGTH_SHORT).show();
             }
         });
@@ -154,6 +155,13 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
                         startActivity(intent);
                     }
                 });
+    }
+
+    public void buttonInvite(View view) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        transaction.add(android.R.id.content, new InviteUserDialog()).addToBackStack(null).commit();
     }
 
     public void buttonToDoList(View view) {

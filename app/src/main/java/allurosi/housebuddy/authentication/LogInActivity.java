@@ -85,4 +85,9 @@ public class LogInActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        // Empty to catch back presses to MainActivity
+    }
+
 }
