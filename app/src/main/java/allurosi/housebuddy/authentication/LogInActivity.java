@@ -16,11 +16,14 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Arrays;
 import java.util.List;
 
-import allurosi.housebuddy.HouseholdManagerActivity;
+import allurosi.housebuddy.householdmanager.HouseholdManagerActivity;
 
 public class LogInActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
+    public static final String USER_ID = "userId";
+    public static final String USER_EMAIL = "userEmail";
+
     private FirebaseAuth mAuth;
 
     private EditText mEmailInput;
@@ -53,8 +56,10 @@ public class LogInActivity extends AppCompatActivity {
                 RC_SIGN_IN);
     }
 
-    private void enterManager() {
+    private void enterManager(String userId, String userEmail) {
         Intent intent = new Intent(this, HouseholdManagerActivity.class);
+        intent.putExtra(USER_ID, userId);
+        intent.putExtra(USER_EMAIL, userEmail);
         startActivity(intent);
     }
 
@@ -69,7 +74,7 @@ public class LogInActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                enterManager();
+                enterManager(user.getUid(), user.getEmail());
                 // ...
             } else {
                 // Sign in failed. If response is null the user canceled the
