@@ -74,7 +74,7 @@
             android:text="@string/welcome_message"
             android:textSize="18sp" />
 
-        <EditText
+        <android.support.design.widget.TextInputEditText
             android:id="@+id/new_first_name"
             style="@style/Base.Widget.MaterialComponents.TextInputEditText"
             android:layout_width="match_parent"
@@ -85,7 +85,7 @@
             android:inputType="textPersonName"
             android:singleLine="true" />
 
-        <EditText
+        <android.support.design.widget.TextInputEditText
             android:id="@+id/new_last_name"
             style="@style/Base.Widget.MaterialComponents.TextInputEditText"
             android:layout_width="match_parent"

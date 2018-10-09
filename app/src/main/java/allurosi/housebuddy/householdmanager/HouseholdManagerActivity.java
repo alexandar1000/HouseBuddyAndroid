@@ -34,7 +34,6 @@ import allurosi.housebuddy.todolist.ToDoListActivity;
 
 import static allurosi.housebuddy.authentication.LogInActivity.USER_EMAIL;
 import static allurosi.housebuddy.authentication.LogInActivity.USER_ID;
-import static allurosi.housebuddy.householdmanager.InviteUserDialogFragment.KEY_INVITES;
 
 public class HouseholdManagerActivity extends AppCompatActivity
         implements NewUserDialogFragment.NewUserDialogListener, JoinHouseholdDialogFragment.JoinHouseholdDialogListener {
@@ -43,12 +42,9 @@ public class HouseholdManagerActivity extends AppCompatActivity
     public static final String KEY_HOUSEHOLD = "household";
     public static final String HOUSEHOLD_PATH = "householdPath";
     public static final String USERS_COLLECTION_PATH = "users";
-    public static final String KEY_MEMBERS = "members";
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_FIRST_NAME = "first_name";
     public static final String FIELD_LAST_NAME = "last_name";
-    public static final String FIELD_COLOR = "color";
-    public static final String FIELD_USER_REFERENCE = "user_reference";
 
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
     private String mUserId;
@@ -61,6 +57,8 @@ public class HouseholdManagerActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.household_manager_loading);
+
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         Intent intent = getIntent();
         mUserId = intent.getStringExtra(USER_ID);
@@ -75,8 +73,6 @@ public class HouseholdManagerActivity extends AppCompatActivity
                 setContentView(R.layout.no_household_layout);
             }
         }
-
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     private boolean userHasHousehold() {
@@ -158,54 +154,22 @@ public class HouseholdManagerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onJoinHousehold(String invitationCode) {
+    public void startJoinHousehold() {
+        // Called when joining is initiated
         setContentView(R.layout.household_manager_loading);
+    }
 
-        mFireStore.collection(KEY_INVITES).document(invitationCode).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                // Check if invitation code is valid (if it exists in the database)
-                if (documentSnapshot.exists()) {
-                    // Get household linked to invite
-                    final DocumentReference householdReference = documentSnapshot.getDocumentReference(KEY_HOUSEHOLD);
+    @Override
+    public void onJoinHousehold(String householdPath) {
+        // Save household and go to normal household layout
+        saveHousehold(householdPath);
+        setContentView(R.layout.household_manager);
+    }
 
-                    // Add household reference to user
-                    DocumentReference userRef = mFireStore.collection(USERS_COLLECTION_PATH).document(mUserId);
-                    userRef.update(KEY_HOUSEHOLD, householdReference).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            // Save household and go to normal household layout
-                            saveHousehold(householdReference.getPath());
-                            setContentView(R.layout.household_manager);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(LOG_NAME, "Failed to add household to user: " + e);
-                        }
-                    });
-
-                    // Add user user to household members
-                    Map<String, Object> map = new HashMap<>();
-                    // TODO: randomize color
-                    map.put(FIELD_COLOR, "0000FF");
-                    map.put(FIELD_USER_REFERENCE, userRef);
-                    householdReference.collection(KEY_MEMBERS).document(mUserId).set(map).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(LOG_NAME, "Failed to add user as household member: " + e);
-                        }
-                    });
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(LOG_NAME, "Failed to retrieve invite: " + e);
-                Toast.makeText(HouseholdManagerActivity.this, "Failed to join household.", Toast.LENGTH_LONG).show();
-                setContentView(R.layout.no_household_layout);
-            }
-        });
+    @Override
+    public void onJoinFailure() {
+        Toast.makeText(HouseholdManagerActivity.this, "Failed to join household.", Toast.LENGTH_LONG).show();
+        setContentView(R.layout.no_household_layout);
     }
 
     public void buttonJoinHousehold(View view) {

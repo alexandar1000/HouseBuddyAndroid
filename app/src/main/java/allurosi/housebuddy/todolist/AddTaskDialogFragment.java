@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -14,9 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import allurosi.housebuddy.R;
 
@@ -24,6 +23,7 @@ public class AddTaskDialogFragment extends DialogFragment {
 
     private Context mContext;
     private Task newTask;
+    private TextInputEditText newTaskNameInput;
 
     private NewTaskDialogListener listener;
 
@@ -37,8 +37,8 @@ public class AddTaskDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.dialog_new_task, container, false);
 
-        final EditText newTaskNameInput = rootView.findViewById(R.id.new_task_name);
-        final EditText newTaskDescInput = rootView.findViewById(R.id.new_task_description);
+        newTaskNameInput = rootView.findViewById(R.id.new_task_name);
+        final TextInputEditText newTaskDescInput = rootView.findViewById(R.id.new_task_description);
         ImageButton closeButton = rootView.findViewById(R.id.button_close);
         Button saveButton = rootView.findViewById(R.id.button_save);
 
@@ -81,7 +81,7 @@ public class AddTaskDialogFragment extends DialogFragment {
     private boolean createTask(String newTaskName, String newTaskDescription) {
         // Notify the user if no name is supplied before pressing create
         if (newTaskName.isEmpty()) {
-            Toast.makeText(getActivity(), getString(R.string.enter_name_alert), Toast.LENGTH_SHORT).show();
+            newTaskNameInput.setError(getResources().getString(R.string.enter_name_alert));
             return false;
         }
 

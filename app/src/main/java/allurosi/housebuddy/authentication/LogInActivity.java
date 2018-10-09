@@ -1,7 +1,9 @@
 package allurosi.housebuddy.authentication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.EditText;
@@ -74,8 +76,12 @@ public class LogInActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                enterManager(user.getUid(), user.getEmail());
-                // ...
+
+                String userId = user.getUid();
+                String userEmail = user.getEmail();
+
+                enterManager(userId, userEmail);
+                saveUserInfo(userId, userEmail);
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
@@ -83,6 +89,16 @@ public class LogInActivity extends AppCompatActivity {
                 // ...
             }
         }
+    }
+
+    private void saveUserInfo(String userId, String userEmail) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        // Save the user information to device storage
+        editor.putString(USER_ID, userId);
+        editor.putString(USER_EMAIL, userEmail);
+        editor.apply();
     }
 
     @Override

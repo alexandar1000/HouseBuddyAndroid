@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -14,15 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import allurosi.housebuddy.R;
 
 public class NewUserDialogFragment extends DialogFragment {
 
     private Context mContext;
+    TextInputEditText newFirstNameInput, newLastNameInput;
 
     private NewUserDialogListener listener;
 
@@ -34,8 +34,8 @@ public class NewUserDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.dialog_new_user, container, false);
 
-        final EditText newFirstNameInput = rootView.findViewById(R.id.new_first_name);
-        final EditText newLastNameInput = rootView.findViewById(R.id.new_last_name);
+        newFirstNameInput = rootView.findViewById(R.id.new_first_name);
+        newLastNameInput = rootView.findViewById(R.id.new_last_name);
         ImageButton backButton = rootView.findViewById(R.id.button_back);
         Button saveButton = rootView.findViewById(R.id.button_save);
 
@@ -55,12 +55,21 @@ public class NewUserDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 String firstName = newFirstNameInput.getText().toString();
                 String lastName = newLastNameInput.getText().toString();
+                Boolean formCompleted = true;
 
-                if (!firstName.equals("") && !lastName.equals("")) {
+                if (firstName.equals("")) {
+                    newFirstNameInput.setError(getResources().getString(R.string.required_field));
+                    formCompleted = false;
+                }
+
+                if (lastName.equals("")) {
+                    newLastNameInput.setError(getResources().getString(R.string.required_field));
+                    formCompleted = false;
+                }
+
+                if (formCompleted) {
                     listener.onAddNewUser(firstName, lastName);
                     dismiss();
-                } else {
-                    Toast.makeText(mContext, getResources().getString(R.string.fill_fields_warning), Toast.LENGTH_SHORT).show();
                 }
             }
         });
