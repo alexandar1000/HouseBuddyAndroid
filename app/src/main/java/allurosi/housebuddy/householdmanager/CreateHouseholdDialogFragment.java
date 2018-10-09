@@ -61,7 +61,7 @@ public class CreateHouseholdDialogFragment extends DialogFragment implements Dia
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (householdNameInput.getText().toString().equals("")) {
+                if (householdNameInput.getText().toString().isEmpty()) {
                     dismiss();
                 } else {
                     showDiscardWarning();
@@ -74,7 +74,7 @@ public class CreateHouseholdDialogFragment extends DialogFragment implements Dia
             public void onClick(View v) {
                 String householdName = householdNameInput.getText().toString();
 
-                if (householdName.equals("")) {
+                if (householdName.isEmpty()) {
                     householdNameInput.setError(getResources().getString(R.string.required_field));
                 } else {
                     String userId = PreferenceManager.getDefaultSharedPreferences(mContext).getString(USER_ID, "");

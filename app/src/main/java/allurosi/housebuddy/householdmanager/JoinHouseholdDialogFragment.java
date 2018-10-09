@@ -69,14 +69,14 @@ public class JoinHouseholdDialogFragment extends DialogFragment implements Dialo
                 // TODO: Maybe add warning
                 // Get user id from device storage
                 String userId = PreferenceManager.getDefaultSharedPreferences(mContext).getString(USER_ID, "");
-                if (userId.equals("")) {
+                if (userId.isEmpty()) {
                     // No user id saved, abort
                     Log.w(LOG_NAME, "JOIN DIALOG: No user id saved.");
                     listener.onAddingFailure(errorMessageString);
                     dismiss();
                 } else {
                     String invitationCode = invitationCodeInput.getText().toString();
-                    if (invitationCode.equals("")) {
+                    if (invitationCode.isEmpty()) {
                         // Nothing entered, give error
                         invitationCodeInput.setError(getResources().getString(R.string.invalid_invitation_code));
                     } else {

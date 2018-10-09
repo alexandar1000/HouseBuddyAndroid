@@ -1,7 +1,9 @@
 package allurosi.housebuddy.householdmanager;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -10,6 +12,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -23,7 +26,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +40,9 @@ import allurosi.housebuddy.todolist.ToDoListActivity;
 
 import static allurosi.housebuddy.authentication.LogInActivity.USER_EMAIL;
 import static allurosi.housebuddy.authentication.LogInActivity.USER_ID;
+import static allurosi.housebuddy.householdmanager.InviteUserDialogFragment.KEY_INVITES;
+import static allurosi.housebuddy.householdmanager.InviteUserDialogFragment.KEY_INVITE_CODE;
+import static allurosi.housebuddy.householdmanager.JoinHouseholdDialogFragment.KEY_MEMBERS;
 
 public class HouseholdManagerActivity extends AppCompatActivity implements NewUserDialogFragment.NewUserDialogListener, AddHouseholdListener {
 
@@ -47,6 +55,9 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
     public static final String FIELD_LAST_NAME = "last_name";
 
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+    private DocumentReference mHouseholdRef;
+    private DocumentReference mUserRef;
+
     private String mUserId;
     private String mUserEmail;
 
@@ -77,11 +88,13 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
 
     private boolean userHasHousehold() {
         String householdPath = mSharedPreferences.getString(HOUSEHOLD_PATH, "");
-        return !householdPath.equals("");
+        return !householdPath.isEmpty();
     }
 
     private void storeHousehold(String householdPath) {
-        // Save the path to the user's household
+        mHouseholdRef = mFireStore.document(householdPath);
+
+        // Store the path to the user's household
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString(HOUSEHOLD_PATH, householdPath);
         editor.apply();
@@ -89,8 +102,8 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
 
     private void fetchUserData() {
         // Get document with current userId from the users collection
-        DocumentReference userDocRef = mFireStore.document("users/" + mUserId);
-        userDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        mUserRef = mFireStore.collection(USERS_COLLECTION_PATH).document(mUserId);
+        mUserRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 // Check if user is already registered in the user database
@@ -183,15 +196,7 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
         setContentView(R.layout.no_household_layout);
     }
 
-    public void buttonJoinHousehold(View view) {
-        addDialogFragment(new JoinHouseholdDialogFragment());
-    }
-
-    public void buttonCreateHousehold(View view) {
-        addDialogFragment(new CreateHouseholdDialogFragment());
-    }
-
-    public void buttonSignOut(View view) {
+    private void signOut() {
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -202,11 +207,112 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
                 });
     }
 
+    public void buttonJoinHousehold(View view) {
+        addDialogFragment(new JoinHouseholdDialogFragment());
+    }
+
+    public void buttonCreateHousehold(View view) {
+        addDialogFragment(new CreateHouseholdDialogFragment());
+    }
+
+    public void buttonSignOut(View view) {
+        signOut();
+    }
+
     public void buttonInvite(View view) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         transaction.add(android.R.id.content, new InviteUserDialogFragment()).addToBackStack(null).commit();
+    }
+
+    public void buttonLeaveHousehold(View view) {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            builder = new AlertDialog.Builder(this, android.R.style.ThemeOverlay_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(this);
+        }
+
+        builder.setMessage(getResources().getString(R.string.leave_household_message))
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        setContentView(R.layout.no_household_layout);
+
+                        // Delete user from household's member collection
+                        mHouseholdRef.collection(KEY_MEMBERS).document(mUserId).delete().addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(LOG_NAME, "Failed to delete user from household: " + e);
+                            }
+                        });
+
+                        // Delete household reference from user
+                        Map<String, Object> mapHousehold = new HashMap<>();
+                        mapHousehold.put(KEY_HOUSEHOLD, FieldValue.delete());
+
+                        mUserRef.update(mapHousehold).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(LOG_NAME, "Failed to delete household reference from user: " + e);
+                                Toast.makeText(HouseholdManagerActivity.this, getResources().getString(R.string.leave_household_failed), Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                        // Delete household if it's empty
+                        mHouseholdRef.collection(KEY_MEMBERS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                if (queryDocumentSnapshots.isEmpty()) {
+                                    // Household has no more members, check if there is still an invite code
+                                    mHouseholdRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if (documentSnapshot.exists()) {
+                                                if (documentSnapshot.getString(KEY_INVITE_CODE) != null) {
+                                                    // Delete household's invite code if it exists
+                                                    String inviteCode = documentSnapshot.getString(KEY_INVITE_CODE);
+                                                    if (inviteCode != null) {
+                                                        mFireStore.collection(KEY_INVITES).document(inviteCode).delete().addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.w(LOG_NAME, "Failed to delete household invite code: " + e);
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(LOG_NAME, "Failed to retrieve household invite_code: " + e);
+                                        }
+                                    });
+
+                                    // Delete household
+                                    mHouseholdRef.delete().addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(LOG_NAME, "Failed to delete empty household: " + e);
+                                        }
+                                    });
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(LOG_NAME, "Failed to retrieve household: " + e);
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
     }
 
     public void buttonToDoList(View view) {

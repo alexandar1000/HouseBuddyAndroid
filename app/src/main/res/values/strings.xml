@@ -78,4 +78,7 @@
     <string name="new_household">New Household</string>
     <string name="join_household_failed">Failed to join household.</string>
     <string name="create_household_failed">Failed to create household.</string>
+    <string name="leave">Leave</string>
+    <string name="leave_household_message">Are you sure you want to leave this household?</string>
+    <string name="leave_household_failed">Failed to leave household.</string>
 </resources>

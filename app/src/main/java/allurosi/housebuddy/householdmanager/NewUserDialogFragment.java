@@ -42,7 +42,7 @@ public class NewUserDialogFragment extends DialogFragment implements DialogFragm
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!newFirstNameInput.getText().toString().equals("") || !newLastNameInput.getText().toString().equals("")) {
+                if (!newFirstNameInput.getText().toString().isEmpty() || !newLastNameInput.getText().toString().isEmpty()) {
                     showDiscardWarning();
                 } else {
                     dismiss();
@@ -57,12 +57,12 @@ public class NewUserDialogFragment extends DialogFragment implements DialogFragm
                 String lastName = newLastNameInput.getText().toString();
                 Boolean formCompleted = true;
 
-                if (firstName.equals("")) {
+                if (firstName.isEmpty()) {
                     newFirstNameInput.setError(getResources().getString(R.string.required_field));
                     formCompleted = false;
                 }
 
-                if (lastName.equals("")) {
+                if (lastName.isEmpty()) {
                     newLastNameInput.setError(getResources().getString(R.string.required_field));
                     formCompleted = false;
                 }

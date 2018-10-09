@@ -73,9 +73,9 @@ public class InviteUserDialogFragment extends DialogFragment {
         String householdPath = pref.getString(HOUSEHOLD_PATH, "");
 
         // Set to old stored invitation code if it exists
-        mInviteCode = PreferenceManager.getDefaultSharedPreferences(mContext).getString(KEY_INVITE_CODE, "");
-        if (!mInviteCode.equals("")) {
-            inviteCodeView.setText(mInviteCode);
+        String oldInviteCode = PreferenceManager.getDefaultSharedPreferences(mContext).getString(KEY_INVITE_CODE, "");
+        if (!oldInviteCode.isEmpty()) {
+            inviteCodeView.setText(oldInviteCode);
         }
 
         // Get current invite code, if it exists

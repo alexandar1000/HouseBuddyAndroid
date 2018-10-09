@@ -45,7 +45,7 @@ public class AddTaskDialogFragment extends DialogFragment {
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!newTaskNameInput.getText().toString().equals("") || !newTaskDescInput.getText().toString().equals("")) {
+                if (!newTaskNameInput.getText().toString().isEmpty() || !newTaskDescInput.getText().toString().isEmpty()) {
                     showDiscardWarning();
                 } else {
                     dismiss();
