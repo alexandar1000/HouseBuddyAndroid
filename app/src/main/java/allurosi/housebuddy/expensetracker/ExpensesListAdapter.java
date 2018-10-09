@@ -40,7 +40,7 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
 
         if (product != null) {
             productName.setText(product.getName());
-            productPrice.setText(String.valueOf(product.getPrice()));
+            productPrice.setText("€"+String.format("%.2f",product.getPrice()));
         }
 
         return convertView;
