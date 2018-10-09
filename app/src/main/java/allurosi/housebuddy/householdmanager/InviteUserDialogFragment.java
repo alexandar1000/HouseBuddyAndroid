@@ -153,7 +153,7 @@ public class InviteUserDialogFragment extends DialogFragment {
 
                 // Add new invite code to invites collection
                 Map<String, Object> mapInvite = new HashMap<>();
-                mapInvite.put(KEY_HOUSEHOLD, mHouseholdRef.getPath());
+                mapInvite.put(KEY_HOUSEHOLD, mHouseholdRef);
                 invitesCollection.document(mInviteCode).set(mapInvite).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {

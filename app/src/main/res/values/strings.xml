@@ -67,7 +67,10 @@
     <string name="account_updated_failed">Failed to update user information.</string>
     <string name="invite">Invite</string>
     <string name="invite_user">Invite user</string>
-    <string name="invite_code_message">The invite code for this household is:</string>
+    <string name="invite_code_message">The invitation code for this household is:</string>
     <string name="renew_code">Renew code</string>
     <string name="code_copied">Code copied to clipboard.</string>
+    <string name="join_household_message">Fill in the invitation code of the household you wish to join below.</string>
+    <string name="join">Join</string>
+    <string name="invitation_code">Invitation code</string>
 </resources>
