@@ -34,25 +34,19 @@ import static allurosi.housebuddy.householdmanager.InviteUserDialogFragment.KEY_
 
 import static allurosi.housebuddy.authentication.LogInActivity.USER_ID;
 
-public class JoinHouseholdDialogFragment extends DialogFragment {
+public class JoinHouseholdDialogFragment extends DialogFragment implements DialogFragmentInterface {
 
     public static final String KEY_MEMBERS = "members";
     public static final String FIELD_COLOR = "color";
     public static final String FIELD_USER_REFERENCE = "user_reference";
 
+    private static final int errorMessageString = R.string.join_household_failed;
+
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
     private TextInputEditText invitationCodeInput;
     private Context mContext;
 
-    private JoinHouseholdDialogListener listener;
-
-    public interface JoinHouseholdDialogListener {
-        void startJoinHousehold();
-
-        void onJoinHousehold(String householdPath);
-
-        void onJoinFailure();
-    }
+    private AddHouseholdListener listener;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,7 +72,7 @@ public class JoinHouseholdDialogFragment extends DialogFragment {
                 if (userId.equals("")) {
                     // No user id saved, abort
                     Log.w(LOG_NAME, "JOIN DIALOG: No user id saved.");
-                    listener.onJoinFailure();
+                    listener.onAddingFailure(errorMessageString);
                     dismiss();
                 } else {
                     String invitationCode = invitationCodeInput.getText().toString();
@@ -101,7 +95,7 @@ public class JoinHouseholdDialogFragment extends DialogFragment {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 // Check if invitation code is valid (if it exists in the database)
                 if (documentSnapshot.exists()) {
-                    listener.startJoinHousehold();
+                    listener.onAddingStart();
 
                     // Get household linked to invite
                     final DocumentReference householdReference = documentSnapshot.getDocumentReference(KEY_HOUSEHOLD);
@@ -111,18 +105,18 @@ public class JoinHouseholdDialogFragment extends DialogFragment {
                     userRef.update(KEY_HOUSEHOLD, householdReference).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            listener.onJoinHousehold(householdReference.getPath());
+                            listener.onAddingFinish(householdReference.getPath());
                             dismiss();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.w(LOG_NAME, "JOIN DIALOG: Failed to add household to user: " + e);
-                            listener.onJoinFailure();
+                            listener.onAddingFailure(errorMessageString);
                         }
                     });
 
-                    // Add user user to household members
+                    // Add user to household members
                     Map<String, Object> map = new HashMap<>();
                     // TODO: randomize color
                     map.put(FIELD_COLOR, "0000FF");
@@ -131,7 +125,7 @@ public class JoinHouseholdDialogFragment extends DialogFragment {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.w(LOG_NAME, "JOIN DIALOG: Failed to add user as household member: " + e);
-                            listener.onJoinFailure();
+                            listener.onAddingFailure(errorMessageString);
                         }
                     });
                 } else {
@@ -143,7 +137,7 @@ public class JoinHouseholdDialogFragment extends DialogFragment {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(LOG_NAME, "JOIN DIALOG: Failed to retrieve invite: " + e);
-                listener.onJoinFailure();
+                listener.onAddingFailure(errorMessageString);
             }
         });
     }
@@ -157,7 +151,7 @@ public class JoinHouseholdDialogFragment extends DialogFragment {
     }
 
     public void setListener(HouseholdManagerActivity parent) {
-        listener = (JoinHouseholdDialogListener) parent;
+        listener = (AddHouseholdListener) parent;
     }
 
     // Deprecated method to support lower APIs

@@ -19,7 +19,7 @@ import android.widget.ImageButton;
 
 import allurosi.housebuddy.R;
 
-public class NewUserDialogFragment extends DialogFragment {
+public class NewUserDialogFragment extends DialogFragment implements DialogFragmentInterface {
 
     private Context mContext;
     TextInputEditText newFirstNameInput, newLastNameInput;

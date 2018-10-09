@@ -74,4 +74,8 @@
     <string name="invitation_code">Invitation code</string>
     <string name="invalid_invitation_code">Invalid invitation code.</string>
     <string name="required_field">This field is required.</string>
+    <string name="create">Create</string>
+    <string name="new_household">New Household</string>
+    <string name="join_household_failed">Failed to join household.</string>
+    <string name="create_household_failed">Failed to create household.</string>
 </resources>

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
@@ -35,8 +36,7 @@ import allurosi.housebuddy.todolist.ToDoListActivity;
 import static allurosi.housebuddy.authentication.LogInActivity.USER_EMAIL;
 import static allurosi.housebuddy.authentication.LogInActivity.USER_ID;
 
-public class HouseholdManagerActivity extends AppCompatActivity
-        implements NewUserDialogFragment.NewUserDialogListener, JoinHouseholdDialogFragment.JoinHouseholdDialogListener {
+public class HouseholdManagerActivity extends AppCompatActivity implements NewUserDialogFragment.NewUserDialogListener, AddHouseholdListener {
 
     public static final String LOG_NAME = "HouseHoldManager";
     public static final String KEY_HOUSEHOLD = "household";
@@ -80,7 +80,7 @@ public class HouseholdManagerActivity extends AppCompatActivity
         return !householdPath.equals("");
     }
 
-    private void saveHousehold(String householdPath) {
+    private void storeHousehold(String householdPath) {
         // Save the path to the user's household
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString(HOUSEHOLD_PATH, householdPath);
@@ -98,9 +98,12 @@ public class HouseholdManagerActivity extends AppCompatActivity
                     // Check if user has a household
                     if (documentSnapshot.contains(KEY_HOUSEHOLD)) {
                         DocumentReference householdRef = documentSnapshot.getDocumentReference(KEY_HOUSEHOLD);
-                        saveHousehold(householdRef.getPath());
-
-                        setContentView(R.layout.household_manager);
+                        if (householdRef != null) {
+                            storeHousehold(householdRef.getPath());
+                            setContentView(R.layout.household_manager);
+                        } else {
+                            setContentView(R.layout.no_household_layout);
+                        }
                     } else {
                         // User is an existing user without a household
                         // TODO: create and join household functionality
@@ -109,7 +112,7 @@ public class HouseholdManagerActivity extends AppCompatActivity
                 } else {
                     // User is a new user
                     setContentView(R.layout.no_household_layout);
-                    newUserDialog();
+                    addDialogFragment(new NewUserDialogFragment());
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -120,14 +123,19 @@ public class HouseholdManagerActivity extends AppCompatActivity
         });
     }
 
-    private void newUserDialog() {
-        NewUserDialogFragment newUserDialogFragment = new NewUserDialogFragment();
-        newUserDialogFragment.setListener(this);
+    /**
+     * Performs fragment transaction, and sets listener if object implements DialogFragmentInterface
+     * @param newDialogFragment takes a DialogFragment as argument
+     */
+    private void addDialogFragment(DialogFragment newDialogFragment) {
+        if (newDialogFragment instanceof DialogFragmentInterface) {
+            ((DialogFragmentInterface) newDialogFragment).setListener(this);
+        }
 
         // Add new user DialogFragment with transaction
         FragmentTransaction transaction = mFragmentManager.beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.add(android.R.id.content, newUserDialogFragment).addToBackStack(null).commit();
+        transaction.add(android.R.id.content, newDialogFragment).addToBackStack(null).commit();
     }
 
     @Override
@@ -154,31 +162,33 @@ public class HouseholdManagerActivity extends AppCompatActivity
     }
 
     @Override
-    public void startJoinHousehold() {
+    public void onAddingStart() {
         // Called when joining is initiated
         setContentView(R.layout.household_manager_loading);
     }
 
     @Override
-    public void onJoinHousehold(String householdPath) {
-        // Save household and go to normal household layout
-        saveHousehold(householdPath);
+    public void onAddingFinish(String householdPath) {
+        // Store household and go to normal household layout
+        storeHousehold(householdPath);
         setContentView(R.layout.household_manager);
     }
 
     @Override
-    public void onJoinFailure() {
-        Toast.makeText(HouseholdManagerActivity.this, "Failed to join household.", Toast.LENGTH_LONG).show();
+    public void onAddingFailure(int stringResource) {
+        // Reset to default path if adding failed
+        storeHousehold("");
+
+        Toast.makeText(HouseholdManagerActivity.this, getResources().getString(stringResource), Toast.LENGTH_LONG).show();
         setContentView(R.layout.no_household_layout);
     }
 
     public void buttonJoinHousehold(View view) {
-        JoinHouseholdDialogFragment joinHouseholdDialogFragment = new JoinHouseholdDialogFragment();
-        joinHouseholdDialogFragment.setListener(this);
+        addDialogFragment(new JoinHouseholdDialogFragment());
+    }
 
-        FragmentTransaction transaction = mFragmentManager.beginTransaction();
-        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.add(android.R.id.content, joinHouseholdDialogFragment).addToBackStack(null).commit();
+    public void buttonCreateHousehold(View view) {
+        addDialogFragment(new CreateHouseholdDialogFragment());
     }
 
     public void buttonSignOut(View view) {
