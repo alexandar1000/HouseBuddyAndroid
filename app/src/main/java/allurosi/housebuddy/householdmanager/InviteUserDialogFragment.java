@@ -25,7 +25,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -34,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import allurosi.housebuddy.R;
 
@@ -49,9 +54,10 @@ public class InviteUserDialogFragment extends DialogFragment {
     private Context mContext;
     private TextView inviteCodeView;
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
-    // TODO: maybe store last invite code for if there's no internet
     private String mInviteCode = null;
     private DocumentReference mHouseholdRef;
+
+    private ListenerRegistration mListenerRegistration;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,24 +72,40 @@ public class InviteUserDialogFragment extends DialogFragment {
                 PreferenceManager.getDefaultSharedPreferences(mContext);
         String householdPath = pref.getString(HOUSEHOLD_PATH, "");
 
+        // Set to old stored invitation code if it exists
+        mInviteCode = PreferenceManager.getDefaultSharedPreferences(mContext).getString(KEY_INVITE_CODE, "");
+        if (!mInviteCode.equals("")) {
+            inviteCodeView.setText(mInviteCode);
+        }
+
         // Get current invite code, if it exists
         mHouseholdRef = mFireStore.document(householdPath);
         mHouseholdRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.getString(KEY_INVITE_CODE) != null) {
-                    // Set invite code if it exists
-                    mInviteCode = documentSnapshot.getString(KEY_INVITE_CODE);
-                    inviteCodeView.setText(mInviteCode);
-                } else {
-                    // No invite code stored, generate and store a new code
-                    generateNewInviteCode();
+                if (documentSnapshot.exists()) {
+                    if (documentSnapshot.getString(KEY_INVITE_CODE) != null) {
+                        // Set and store invite code if it exists
+                        mInviteCode = documentSnapshot.getString(KEY_INVITE_CODE);
+                        inviteCodeView.setText(mInviteCode);
+                        storeInvitationCode();
+                    } else {
+                        // No invite code stored, generate and store a new code
+                        generateNewInviteCode();
+                    }
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(LOG_NAME, "INVITE DIALOG, failed to retrieve household invite_code: " + e);
+            }
+        });
+
+        mHouseholdRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+
             }
         });
 
@@ -160,8 +182,6 @@ public class InviteUserDialogFragment extends DialogFragment {
                         Log.w(LOG_NAME, "INVITE DIALOG, failed to add invite: " + e);
                     }
                 });
-
-                inviteCodeView.setText(mInviteCode);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -186,12 +206,49 @@ public class InviteUserDialogFragment extends DialogFragment {
         return sb.toString();
     }
 
+    private void storeInvitationCode() {
+        // Save the path to the user's household
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
+        editor.putString(KEY_INVITE_CODE, mInviteCode);
+        editor.apply();
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         return dialog;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Add listener which updates the invitation code if another user changes it
+        mListenerRegistration = mHouseholdRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (documentSnapshot.exists()) {
+                    if (documentSnapshot.getString(KEY_INVITE_CODE) != null) {
+                        // Set and store invite code if it exists
+                        mInviteCode = documentSnapshot.getString(KEY_INVITE_CODE);
+                        inviteCodeView.setText(mInviteCode);
+                        storeInvitationCode();
+                    } else if (e != null) {
+                        Log.w(LOG_NAME, "INVITE DIALOG, snapshot listener error: " + e);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Detach listener when it's no longer needed
+        mListenerRegistration.remove();
     }
 
     // Deprecated method to support lower APIs

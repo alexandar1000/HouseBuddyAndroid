@@ -81,8 +81,14 @@ public class JoinHouseholdDialogFragment extends DialogFragment {
                     listener.onJoinFailure();
                     dismiss();
                 } else {
-                    // Try to join household
-                    joinHousehold(invitationCodeInput.getText().toString(), userId);
+                    String invitationCode = invitationCodeInput.getText().toString();
+                    if (invitationCode.equals("")) {
+                        // Nothing entered, give error
+                        invitationCodeInput.setError(getResources().getString(R.string.invalid_invitation_code));
+                    } else {
+                        // Try to join household
+                        joinHousehold(invitationCode, userId);
+                    }
                 }
             }
         });
