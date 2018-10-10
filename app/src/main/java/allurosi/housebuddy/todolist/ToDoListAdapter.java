@@ -113,10 +113,6 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
         notifyDataSetChanged();
     }
 
-    int selectionSize() {
-        return selection.size();
-    }
-
     List<Task> getSelection() {
         return selection;
     }

@@ -296,7 +296,8 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
         @Override
         public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
-            final int selectionSize = listAdapter.selectionSize();
+            final List<Task> selection = listAdapter.getSelection();
+            final int selectionSize = selection.size();
 
             switch (menuItem.getItemId()) {
                 case R.id.action_delete_multiple:
@@ -311,16 +312,13 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     builder.setMessage(getResources().getQuantityString(R.plurals.delete_task_question, selectionSize))
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    final List<Task> selection = listAdapter.getSelection();
-
                                     // Delete selection from adapter list, finish action mode
                                     listAdapter.deleteSelected();
                                     actionMode.finish();
 
                                     // Delete selection from database
                                     WriteBatch deleteBatch = mFireStore.batch();
-                                    for (int i = 0; i < selectionSize; i++) {
-                                        final Task task = selection.get(i);
+                                    for (Task task : selection) {
                                         deleteBatch.delete(mToDoListRef.document(task.getTaskId()));
                                     }
                                     deleteBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -368,7 +366,25 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
                 case R.id.action_complete_multiple:
                     listAdapter.markSelectionCompleted();
-                    Toast.makeText(ToDoListActivity.this, getResources().getQuantityString(R.plurals.task_marked_completed, selectionSize), Toast.LENGTH_SHORT).show();
+
+                    // Mark selection as completed in database
+                    WriteBatch completedBatch = mFireStore.batch();
+                    for (Task task : selection) {
+                        task.setCompleted(true);
+                        completedBatch.set(mToDoListRef.document(task.getTaskId()), task);
+                    }
+                    completedBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(ToDoListActivity.this, getResources().getQuantityString(R.plurals.task_marked_completed, selectionSize), Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(LOG_NAME, "Failed to mark one or more tasks as completed: " + e);
+                        }
+                    });
+
                     actionMode.finish();
                     return true;
 
@@ -396,7 +412,6 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     List<Task> newTodoList = new ArrayList<>();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
                         Task task = document.toObject(Task.class);
-                        System.out.println(task);
                         task.setTaskId(document.getId());
                         newTodoList.add(task);
                     }
