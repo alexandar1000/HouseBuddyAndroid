@@ -39,12 +39,15 @@
     <string name="description">Description</string>
     <string name="name">Name</string>
     <string name="new_task">New Task</string>
+    <string name="new_expense">New Expense</string>
+    <string name="price">Price</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="mark_completed">Mark as completed</string>
     <string name="edit_task">Edit task</string>
     <string name="delete_task">Delete task</string>
     <string name="enter_name_alert">Please enter a name.</string>
+    <string name="enter_price_alert">Please enter a price.</string>
     <string name="discard">Discard</string>
     <string name="discard_changes_question">Discard changes?</string>
     <plurals name="items_selected">

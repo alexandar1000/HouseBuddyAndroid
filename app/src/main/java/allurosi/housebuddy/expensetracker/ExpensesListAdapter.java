@@ -46,4 +46,6 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
         return convertView;
     }
 
+
+
 }
