@@ -186,6 +186,9 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
     @Override
     public void onAddNewTask(Task newTask) {
+        if (newTask.getTaskDesc().isEmpty()) {
+            newTask.setTaskDesc(null);
+        }
         addTask(newTask);
     }
 

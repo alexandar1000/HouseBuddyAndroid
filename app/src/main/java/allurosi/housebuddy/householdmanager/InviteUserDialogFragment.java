@@ -67,7 +67,7 @@ public class InviteUserDialogFragment extends DialogFragment {
         Button renewCodeButton = rootView.findViewById(R.id.button_renew_code);
         ImageButton closeButton = rootView.findViewById(R.id.button_close);
 
-        // Get stored household path in database
+        // Get stored household path
         SharedPreferences pref =
                 PreferenceManager.getDefaultSharedPreferences(mContext);
         String householdPath = pref.getString(HOUSEHOLD_PATH, "");
