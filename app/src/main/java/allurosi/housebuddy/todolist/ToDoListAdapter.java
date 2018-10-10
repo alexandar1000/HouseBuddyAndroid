@@ -39,8 +39,8 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
             convertView = LayoutInflater.from(getContext()).inflate(mResourceId, parent, false);
         }
 
-        TextView foodName = convertView.findViewById(R.id.item_task_name);
-        foodName.setText(task.getTaskName());
+        TextView taskName = convertView.findViewById(R.id.item_task_name);
+        taskName.setText(task.getTaskName());
 
         CheckBox checkBox = convertView.findViewById(R.id.delete_checkbox);
 
@@ -49,9 +49,9 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
 
         // Mark completed tasks text green
         if (task.isCompleted()) {
-            foodName.setTextColor(mContext.getResources().getColor(R.color.colorCompletedText));
+            taskName.setTextColor(mContext.getResources().getColor(R.color.colorCompletedText));
         } else {
-            foodName.setTextColor(mContext.getResources().getColor(android.R.color.black));
+            taskName.setTextColor(mContext.getResources().getColor(android.R.color.black));
         }
 
         if (ToDoListActivity.isActionMode) {
@@ -107,7 +107,7 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
 
     void markSelectionCompleted() {
         for (Task task : selection) {
-            task.setIsCompleted(true);
+            task.setCompleted(true);
         }
 
         notifyDataSetChanged();

@@ -67,7 +67,7 @@ public class Task implements Comparable<Task>, Parcelable {
         this.taskDesc = task_desc;
     }
 
-    public void setIsCompleted(Boolean bool) {
+    public void setCompleted(Boolean bool) {
         isCompleted = bool;
     }
 
