@@ -81,4 +81,6 @@
     <string name="leave">Leave</string>
     <string name="leave_household_message">Are you sure you want to leave this household?</string>
     <string name="leave_household_failed">Failed to leave household.</string>
+    <string name="to_do_list_empty">It looks like there are no tasks!</string>
+    <string name="delete_task_failed">Failed to delete task %s from the database.</string>
 </resources>

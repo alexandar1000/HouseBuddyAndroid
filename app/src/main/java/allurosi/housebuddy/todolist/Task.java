@@ -4,52 +4,69 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.google.firebase.firestore.Exclude;
+
 public class Task implements Comparable<Task>, Parcelable {
 
-    private String name;
-    private String description;
+    private String taskId;
+    private String taskName;
+    private String taskDesc;
 
     private Boolean isCompleted = false;
 
+    // Empty constructor for FireStore
+    Task() {}
+
     Task(String name) {
-        this.name = name;
+        this.taskName = name;
     }
 
-    Task(String name, String description) {
-        this.name = name;
-        this.description = description;
+    Task(String taskName, String taskDesc) {
+        this.taskName = taskName;
+        this.taskDesc = taskDesc;
     }
 
     // Copy constructor
     Task(Task original) {
-        this.name = original.name;
-        this.description = original.description;
+        this.taskId = original.taskId;
+        this.taskName = original.taskName;
+        this.taskDesc = original.taskDesc;
         this.isCompleted = original.isCompleted;
     }
 
     // TODO: additional constructor with list of people
 
-    public String getName() {
-        return name;
+    String getTaskName() {
+        return taskName;
     }
 
-    public String getDescription() {
-        return description;
+    @Exclude
+    String getTaskId() {
+        return taskId;
     }
 
-    public Boolean isCompleted() {
+    String getTaskDesc() {
+        return taskDesc;
+    }
+
+    Boolean isCompleted() {
         return isCompleted;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Exclude
+    void setTaskId(String task_id) {
+        this.taskId = task_id;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    void setTaskName(String task_name) {
+        this.taskName = task_name;
     }
 
-    public void setCompleted(Boolean bool) {
+    void setTaskDesc(String task_desc) {
+        this.taskDesc = task_desc;
+    }
+
+    void setIsCompleted(Boolean bool) {
         isCompleted = bool;
     }
 
@@ -64,26 +81,27 @@ public class Task implements Comparable<Task>, Parcelable {
         }
 
         Task task = (Task) obj;
-        if (description == null ^ task.description == null) {
+        if (taskDesc == null ^ task.taskDesc == null) {
             // Only one of both descriptions is null, return false
             return false;
-        } else if (description == null) {
-            // Both are null, compare names and isCompleted
-            return name.equals(task.getName()) && (isCompleted == task.isCompleted);
+        } else if (taskDesc == null) {
+            // Both are null, compare all other fields
+            return taskId.equals(task.getTaskId()) && taskName.equals(task.getTaskName()) && (isCompleted == task.isCompleted);
         } else {
-            // Both are not null
-            return name.equals(task.getName()) && description.equals(task.getDescription()) && (isCompleted == task.isCompleted);
+            // Both are not null, compare all fields
+            return taskId.equals(task.getTaskId()) && taskName.equals(task.getTaskName()) && taskDesc.equals(task.getTaskDesc())
+                    && (isCompleted == task.isCompleted);
         }
     }
 
     @Override
     public String toString() {
-        return "Name: " + name + ", Description: " + description + ", isCompleted is " + isCompleted;
+        return "Id: " + taskId + ", Name: " + taskName + ", Description: " + taskDesc + ", Completed: " + isCompleted;
     }
 
     @Override
     public int compareTo(@NonNull Task t) {
-        return name.compareTo(t.name);
+        return taskName.compareTo(t.taskName);
     }
 
 
@@ -94,8 +112,9 @@ public class Task implements Comparable<Task>, Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(name);
-        parcel.writeString(description);
+        parcel.writeString(taskId);
+        parcel.writeString(taskName);
+        parcel.writeString(taskDesc);
         parcel.writeInt(isCompleted ? 1 : 0);
     }
 
@@ -112,8 +131,9 @@ public class Task implements Comparable<Task>, Parcelable {
     };
 
     private Task(Parcel in) {
-        name = in.readString();
-        description = in.readString();
+        taskId = in.readString();
+        taskName = in.readString();
+        taskDesc = in.readString();
         isCompleted = in.readInt() != 0;
     }
 

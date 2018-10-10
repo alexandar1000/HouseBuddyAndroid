@@ -86,7 +86,7 @@ public class AddTaskDialogFragment extends DialogFragment {
         }
 
         newTask = new Task(newTaskName);
-        newTask.setDescription(newTaskDescription);
+        newTask.setTaskDesc(newTaskDescription);
 
         return true;
     }
