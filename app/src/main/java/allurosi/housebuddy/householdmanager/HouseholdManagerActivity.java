@@ -55,7 +55,8 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
     public static final String FIELD_FIRST_NAME = "first_name";
     public static final String FIELD_LAST_NAME = "last_name";
 
-    private static final String[] HOUSEHOLD_COLLECTION_PATHS = {"to_do_list"};
+    // All collections that get removed when a household is removed
+    private static final String[] HOUSEHOLD_COLLECTION_PATHS = {"to_do_list", "expenses_list"};
 
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
     private DocumentReference mHouseholdRef;
