@@ -23,12 +23,12 @@
         </activity>
         <activity
             android:name=".todolist.ToDoListActivity"
-            android:parentActivityName=".HouseholdManagerActivity">
+            android:parentActivityName=".householdmanager.HouseholdManagerActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".HouseholdManagerActivity" />
+                android:value=".householdmanager.HouseholdManagerActivity" />
         </activity>
         <activity
             android:name=".todolist.ViewTaskActivity"
@@ -42,7 +42,16 @@
                 android:value=".todolist.ToDoListActivity" />
         </activity>
         <activity android:name=".authentication.LogInActivity" />
-        <activity android:name=".HouseholdManagerActivity" />
+        <activity
+            android:name=".householdmanager.HouseholdManagerActivity"
+            android:parentActivityName=".authentication.LogInActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+
+        <!-- Parent activity meta-data to support 4.0 and lower -->
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".authentication.LogInActivity" />
+        </activity>
         <!--This first line of the following metadata might cause some errors in the future. It was a suggested solution because of a conflict about the facebook_app_id-->
         <!--tools:replace="android:value"-->
         <meta-data android:name="com.facebook.sdk.ApplicationId"
@@ -76,12 +85,12 @@
         <activity
             android:name=".expensetracker.ExpensesActivity"
             android:label="@string/title_activity_expenses_list"
-            android:parentActivityName=".HouseholdManagerActivity">
+            android:parentActivityName=".householdmanager.HouseholdManagerActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".HouseholdManagerActivity" />
+                android:value=".householdmanager.HouseholdManagerActivity" />
         </activity>
     </application>
 

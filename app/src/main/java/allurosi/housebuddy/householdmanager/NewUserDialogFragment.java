@@ -1,4 +1,4 @@
-package allurosi.housebuddy.todolist;
+package allurosi.housebuddy.householdmanager;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -19,33 +19,30 @@ import android.widget.ImageButton;
 
 import allurosi.housebuddy.R;
 
-public class AddTaskDialogFragment extends DialogFragment {
+public class NewUserDialogFragment extends DialogFragment implements DialogFragmentInterface {
 
     private Context mContext;
-    private Task newTask;
-    private TextInputEditText newTaskNameInput;
+    TextInputEditText newFirstNameInput, newLastNameInput;
 
-    private NewTaskDialogListener listener;
+    private NewUserDialogListener listener;
 
-    public interface NewTaskDialogListener {
-        void onAddNewTask(Task newTask);
-
-        void onCloseNewTaskDialog();
+    public interface NewUserDialogListener {
+        void onAddNewUser(String firstName, String lastName);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.dialog_new_task, container, false);
+        View rootView = inflater.inflate(R.layout.dialog_new_user, container, false);
 
-        newTaskNameInput = rootView.findViewById(R.id.new_task_name);
-        final TextInputEditText newTaskDescInput = rootView.findViewById(R.id.new_task_description);
-        ImageButton closeButton = rootView.findViewById(R.id.button_close);
+        newFirstNameInput = rootView.findViewById(R.id.new_first_name);
+        newLastNameInput = rootView.findViewById(R.id.new_last_name);
+        ImageButton backButton = rootView.findViewById(R.id.button_back);
         Button saveButton = rootView.findViewById(R.id.button_save);
 
-        closeButton.setOnClickListener(new View.OnClickListener() {
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!newTaskNameInput.getText().toString().isEmpty() || !newTaskDescInput.getText().toString().isEmpty()) {
+                if (!newFirstNameInput.getText().toString().isEmpty() || !newLastNameInput.getText().toString().isEmpty()) {
                     showDiscardWarning();
                 } else {
                     dismiss();
@@ -56,9 +53,22 @@ public class AddTaskDialogFragment extends DialogFragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (createTask(newTaskNameInput.getText().toString(), newTaskDescInput.getText().toString())) {
-                    // Notify the listener that a new task has to be added
-                    listener.onAddNewTask(newTask);
+                String firstName = newFirstNameInput.getText().toString();
+                String lastName = newLastNameInput.getText().toString();
+                Boolean formCompleted = true;
+
+                if (firstName.isEmpty()) {
+                    newFirstNameInput.setError(getResources().getString(R.string.required_field));
+                    formCompleted = false;
+                }
+
+                if (lastName.isEmpty()) {
+                    newLastNameInput.setError(getResources().getString(R.string.required_field));
+                    formCompleted = false;
+                }
+
+                if (formCompleted) {
+                    listener.onAddNewUser(firstName, lastName);
                     dismiss();
                 }
             }
@@ -74,21 +84,8 @@ public class AddTaskDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    public void setListener(ToDoListActivity parent) {
-        listener = (NewTaskDialogListener) parent;
-    }
-
-    private boolean createTask(String newTaskName, String newTaskDescription) {
-        // Notify the user if no name is supplied before pressing create
-        if (newTaskName.isEmpty()) {
-            newTaskNameInput.setError(getResources().getString(R.string.enter_name_alert));
-            return false;
-        }
-
-        newTask = new Task(newTaskName);
-        newTask.setDescription(newTaskDescription);
-
-        return true;
+    public void setListener(HouseholdManagerActivity parent) {
+        listener = (NewUserDialogListener) parent;
     }
 
     private void showDiscardWarning() {
@@ -111,15 +108,6 @@ public class AddTaskDialogFragment extends DialogFragment {
                     }
                 })
                 .show();
-    }
-
-    @Override
-    public void dismiss() {
-        listener.onCloseNewTaskDialog();
-        if (getFragmentManager() != null) {
-            getFragmentManager().popBackStack();
-        }
-        super.dismiss();
     }
 
     // Deprecated method to support lower APIs

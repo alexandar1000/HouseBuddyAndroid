@@ -75,12 +75,12 @@ public class EditTaskActivity extends AppCompatActivity {
                 String newDesc = textTaskDesc.getText().toString();
 
                 // Only change the name and description if they are not empty
-                if (newName.equals("")) {
+                if (newName.isEmpty()) {
                     Toast.makeText(EditTaskActivity.this, getString(R.string.enter_name_alert), Toast.LENGTH_SHORT).show();
                 } else {
                     mTask.setName(newName);
 
-                    if (!newDesc.equals("")) {
+                    if (!newDesc.isEmpty()) {
                         mTask.setDescription(newDesc);
                     }
 
@@ -102,7 +102,7 @@ public class EditTaskActivity extends AppCompatActivity {
         String newDesc = textTaskDesc.getText().toString();
 
         mTask.setName(newName);
-        if (!newDesc.equals("")) {
+        if (!newDesc.isEmpty()) {
             mTask.setDescription(newDesc);
         }
 
