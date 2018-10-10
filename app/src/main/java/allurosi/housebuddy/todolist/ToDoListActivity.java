@@ -412,7 +412,6 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     List<Task> newTodoList = new ArrayList<>();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
                         Task task = document.toObject(Task.class);
-                        System.out.println(task);
                         task.setTaskId(document.getId());
                         newTodoList.add(task);
                     }
