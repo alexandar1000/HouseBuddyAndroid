@@ -36,20 +36,21 @@ public class Task implements Comparable<Task>, Parcelable {
 
     // TODO: additional constructor with list of people
 
-    String getTaskName() {
-        return taskName;
-    }
-
     @Exclude
     String getTaskId() {
         return taskId;
     }
 
-    String getTaskDesc() {
+    // Methods used by FireBase have to be public..
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public String getTaskDesc() {
         return taskDesc;
     }
 
-    Boolean isCompleted() {
+    public Boolean isCompleted() {
         return isCompleted;
     }
 
@@ -58,15 +59,15 @@ public class Task implements Comparable<Task>, Parcelable {
         this.taskId = task_id;
     }
 
-    void setTaskName(String task_name) {
+    public void setTaskName(String task_name) {
         this.taskName = task_name;
     }
 
-    void setTaskDesc(String task_desc) {
+    public void setTaskDesc(String task_desc) {
         this.taskDesc = task_desc;
     }
 
-    void setIsCompleted(Boolean bool) {
+    public void setIsCompleted(Boolean bool) {
         isCompleted = bool;
     }
 

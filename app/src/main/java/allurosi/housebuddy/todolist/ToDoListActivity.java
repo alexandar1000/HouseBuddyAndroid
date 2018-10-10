@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
@@ -31,6 +32,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -65,6 +68,8 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
     private CollectionReference mToDoListRef;
+
+    private ListenerRegistration mListenerRegistration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -380,5 +385,26 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
             mActionMode = null;
         }
     };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Add listener which updates the invitation code if another user changes it
+        mListenerRegistration = mToDoListRef.addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Detach listener when it's no longer needed
+        mListenerRegistration.remove();
+    }
 
 }
