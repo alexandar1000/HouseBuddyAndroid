@@ -51,8 +51,8 @@ public class ViewTaskActivity extends AppCompatActivity {
         mTask = intent.getParcelableExtra(TASK_MESSAGE);
 
         // Set values in layout
-        actionToolBar.setTitle(mTask.getName());
-        textTaskDesc.setText(mTask.getDescription());
+        actionToolBar.setTitle(mTask.getTaskName());
+        textTaskDesc.setText(mTask.getTaskDesc());
     }
 
     @Override
@@ -61,8 +61,8 @@ public class ViewTaskActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 mTask = data.getParcelableExtra(TASK_MESSAGE);
                 originalTask = data.getParcelableExtra(TASK_MESSAGE_ORIGINAL);
-                actionToolBar.setTitle(mTask.getName());
-                textTaskDesc.setText(mTask.getDescription());
+                actionToolBar.setTitle(mTask.getTaskName());
+                textTaskDesc.setText(mTask.getTaskDesc());
 
                 Intent returnIntent = new Intent(ViewTaskActivity.this, ToDoListActivity.class);
                 returnIntent.putExtra(TASK_MESSAGE, mTask);
@@ -92,7 +92,7 @@ public class ViewTaskActivity extends AppCompatActivity {
 
             case R.id.action_complete:
                 originalTask = new Task(mTask);
-                mTask.setCompleted(true);
+                mTask.setIsCompleted(true);
 
                 Intent returnIntent = new Intent(ViewTaskActivity.this, ToDoListActivity.class);
                 returnIntent.putExtra(TASK_MESSAGE, mTask);

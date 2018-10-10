@@ -12,7 +12,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import allurosi.housebuddy.R;
@@ -41,7 +40,7 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
         }
 
         TextView foodName = convertView.findViewById(R.id.item_task_name);
-        foodName.setText(task.getName());
+        foodName.setText(task.getTaskName());
 
         CheckBox checkBox = convertView.findViewById(R.id.delete_checkbox);
 
@@ -80,10 +79,6 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
         return convertView;
     }
 
-    private void sortTasks() {
-        Collections.sort(toDoList);
-    }
-
     boolean isSelected(Task task) {
         return selection.contains(task);
     }
@@ -112,7 +107,7 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
 
     void markSelectionCompleted() {
         for (Task task : selection) {
-            task.setCompleted(true);
+            task.setIsCompleted(true);
         }
 
         notifyDataSetChanged();
@@ -120,6 +115,10 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
 
     int selectionSize() {
         return selection.size();
+    }
+
+    List<Task> getSelection() {
+        return selection;
     }
 
     void undoRemoval() {
@@ -130,7 +129,6 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        sortTasks();
     }
 
 

@@ -28,6 +28,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
@@ -54,6 +55,8 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
     public static final String FIELD_FIRST_NAME = "first_name";
     public static final String FIELD_LAST_NAME = "last_name";
 
+    private static final String[] HOUSEHOLD_COLLECTION_PATHS = {"to_do_list"};
+
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
     private DocumentReference mHouseholdRef;
     private DocumentReference mUserRef;
@@ -79,6 +82,16 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
             fetchUserData();
         } else {
             if (userHasHousehold()) {
+                // Get stored user id
+                mUserId = mSharedPreferences.getString(USER_ID, "");
+                mUserRef = mFireStore.collection(USERS_COLLECTION_PATH).document(mUserId);
+
+                if (mHouseholdRef == null) {
+                    // Get stored household path
+                    String householdPath = mSharedPreferences.getString(HOUSEHOLD_PATH, "");
+                    mHouseholdRef = mFireStore.document(householdPath);
+                }
+
                 setContentView(R.layout.household_manager);
             } else {
                 setContentView(R.layout.no_household_layout);
@@ -289,6 +302,28 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
                                             Log.w(LOG_NAME, "Failed to retrieve household invite_code: " + e);
                                         }
                                     });
+
+                                    // Delete all household collections (by deleting all documents in the collections)
+                                    for (final String collectionPath : HOUSEHOLD_COLLECTION_PATHS) {
+                                        mHouseholdRef.collection(collectionPath).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                                                    document.getReference().delete().addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.w(LOG_NAME, "Failed to delete document in " + collectionPath + ": " + e);
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w(LOG_NAME, "Failed to retrieve collection " + collectionPath + ": " + e);
+                                            }
+                                        });
+                                    }
 
                                     // Delete household
                                     mHouseholdRef.delete().addOnFailureListener(new OnFailureListener() {

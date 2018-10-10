@@ -48,8 +48,8 @@ public class EditTaskActivity extends AppCompatActivity {
         mTask = new Task(originalTask);
 
         // Set values in layout
-        textTaskName.setText(mTask.getName());
-        textTaskDesc.setText(mTask.getDescription());
+        textTaskName.setText(mTask.getTaskName());
+        textTaskDesc.setText(mTask.getTaskDesc());
     }
 
     @Override
@@ -78,10 +78,10 @@ public class EditTaskActivity extends AppCompatActivity {
                 if (newName.isEmpty()) {
                     Toast.makeText(EditTaskActivity.this, getString(R.string.enter_name_alert), Toast.LENGTH_SHORT).show();
                 } else {
-                    mTask.setName(newName);
+                    mTask.setTaskName(newName);
 
                     if (!newDesc.isEmpty()) {
-                        mTask.setDescription(newDesc);
+                        mTask.setTaskDesc(newDesc);
                     }
 
                     returnIntent.putExtra(TASK_MESSAGE, mTask);
@@ -101,9 +101,9 @@ public class EditTaskActivity extends AppCompatActivity {
         String newName = textTaskName.getText().toString();
         String newDesc = textTaskDesc.getText().toString();
 
-        mTask.setName(newName);
+        mTask.setTaskName(newName);
         if (!newDesc.isEmpty()) {
-            mTask.setDescription(newDesc);
+            mTask.setTaskDesc(newDesc);
         }
 
         if (mTask.equals(originalTask)) {
