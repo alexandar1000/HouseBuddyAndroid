@@ -10,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.firebase.firestore.CollectionReference;
+
 import java.util.List;
 
 import allurosi.housebuddy.R;
@@ -19,6 +21,10 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
     private Context mContext;
     private int resourceId;
     private List<Product> products;
+    private CollectionReference mExpenseListRef;
+    public static final String EXPENSE_MESSAGE = "Expense";
+
+    private static final String LOG_NAME = "ExpensesListActivity";
 
     public ExpensesListAdapter(Context context, int resourceId, List<Product> products) {
         super(context, resourceId, products);
@@ -49,14 +55,20 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
         deletebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                ExpensesActivity.remove(product);
                 remove(product);
                 ExpensesActivity.totalPrice();
+
             }
         });
 
         return convertView;
     }
 
+    public void setmExpenseListRef(CollectionReference cf){
+        this.mExpenseListRef = cf;
+    }
 
 
 

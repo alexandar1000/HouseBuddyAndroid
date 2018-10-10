@@ -42,9 +42,9 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
 
     private static final String LOG_NAME = "ExpensesListActivity";
 
-    private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+    private static FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
     public static final String COLLECTION_PATH_EXPENSES_LIST = "expenses_list";
-    private CollectionReference mExpensesListRef;
+    private static CollectionReference mExpensesListRef;
     private FrameLayout loadingLayout;
 
 
@@ -63,7 +63,7 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
         ListView productListView = findViewById(R.id.product_list);
         listAdapter = new ExpensesListAdapter(this, R.layout.product_list_item, productList);
 
-
+        listAdapter.setmExpenseListRef(mExpensesListRef);
         productListView.setAdapter(listAdapter);
         totalprice = findViewById(R.id.total_price);
         //initDummyData();
@@ -80,9 +80,9 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
         return true;
     }
 
-    private void addTask() {
-        AddExpenseDialogFragment addTaskDialogFragment = new AddExpenseDialogFragment();
-        addTaskDialogFragment.setListener(this);
+    private void addExpense() {
+        AddExpenseDialogFragment addExpenseDialogFragment = new AddExpenseDialogFragment();
+        addExpenseDialogFragment.setListener(this);
 
         // Hide to do list action bar and fab
         if (getSupportActionBar() != null) {
@@ -103,7 +103,7 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
         // Add DialogFragment with transaction
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.add(android.R.id.content, addTaskDialogFragment).addToBackStack(null).commit();
+        transaction.add(android.R.id.content, addExpenseDialogFragment).addToBackStack(null).commit();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
                 return true;
 
             case R.id.nut:
-                addTask();
+                addExpense();
                 return true;
 
             default:
@@ -137,18 +137,18 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
     }
 
     @Override
-    public void onAddNewExpense(final Product newTask) {
-        listAdapter.add(newTask);
-        mExpensesListRef.add(newTask).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+    public void onAddNewExpense(final Product newProduct) {
+        listAdapter.add(newProduct);
+        mExpensesListRef.add(newProduct).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
-                // Set auto generated FireStore id as task id
-                newTask.setProductId(documentReference.getId());
+
+                newProduct.setProductId(documentReference.getId());
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.w(LOG_NAME, "Failed to add task to database: " + e);
+                Log.w(LOG_NAME, "Failed to add Expense to database: " + e);
             }
         });
         totalPrice();
@@ -198,6 +198,10 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
         productList.add(new Product("Air softener", 3.5));
         productList.add(new Product("Plate", 2.5));
         productList.add(new Product("Nut",23.60));
+    }
+
+    public static void remove(Product product){
+        mExpensesListRef.document(product.getProductId()).delete();
     }
 
     public static void totalPrice(){
