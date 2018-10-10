@@ -86,4 +86,7 @@
     <string name="leave_household_failed">Failed to leave household.</string>
     <string name="to_do_list_empty">It looks like there are no tasks!</string>
     <string name="delete_task_failed">Failed to delete task %s from the database.</string>
+    <string name="delete_tasks_failed">Failed to delete one or more tasks.</string>
+    <string name="add_tasks_failed">Failed to add one or more tasks.</string>
+    <string name="edit_task_failed">Failed to edit task.</string>
 </resources>

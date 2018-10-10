@@ -92,7 +92,7 @@ public class ViewTaskActivity extends AppCompatActivity {
 
             case R.id.action_complete:
                 originalTask = new Task(mTask);
-                mTask.setIsCompleted(true);
+                mTask.setCompleted(true);
 
                 Intent returnIntent = new Intent(ViewTaskActivity.this, ToDoListActivity.class);
                 returnIntent.putExtra(TASK_MESSAGE, mTask);

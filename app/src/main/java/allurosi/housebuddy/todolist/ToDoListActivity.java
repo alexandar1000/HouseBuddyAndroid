@@ -31,11 +31,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -172,8 +174,6 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     }
 
     private void addTask(final Task newTask) {
-        listAdapter.add(newTask);
-
         // Add new task to database
         mToDoListRef.add(newTask).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -221,7 +221,6 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     // Remove task from list
                     final Task taskToDelete = data.getParcelableExtra(TASK_MESSAGE);
                     lastDeleted = new Task(taskToDelete);
-                    listAdapter.remove(taskToDelete);
 
                     // Remove task from database
                     mToDoListRef.document(taskToDelete.getTaskId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -233,7 +232,6 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                                 @Override
                                 public void onClick(View view) {
                                     addTask(lastDeleted);
-
                                 }
                             });
                             deleteSnackbar.show();
@@ -251,9 +249,14 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     Task newTask = data.getParcelableExtra(TASK_MESSAGE);
                     Task originalTask = data.getParcelableExtra(TASK_MESSAGE_ORIGINAL);
 
-                    // Replace old task
-                    listAdapter.remove(originalTask);
-                    addTask(newTask);
+                    // Replace old task in database
+                    mToDoListRef.document(originalTask.getTaskId()).set(newTask).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(LOG_NAME, "Failed to edit task: " + e);
+                            Toast.makeText(ToDoListActivity.this, getResources().getString(R.string.edit_task_failed), Toast.LENGTH_LONG).show();
+                        }
+                    });
                     break;
             }
         }
@@ -315,49 +318,44 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                                     actionMode.finish();
 
                                     // Delete selection from database
+                                    WriteBatch deleteBatch = mFireStore.batch();
                                     for (int i = 0; i < selectionSize; i++) {
                                         final Task task = selection.get(i);
-                                        if (i == selectionSize - 1) {
-                                            mToDoListRef.document(task.getTaskId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        deleteBatch.delete(mToDoListRef.document(task.getTaskId()));
+                                    }
+                                    deleteBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            // Show snackbar with option to undo removal
+                                            Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, selectionSize), Snackbar.LENGTH_LONG);
+                                            deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
                                                 @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    // Show snackbar with option to undo removal
-                                                    Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, selectionSize), Snackbar.LENGTH_LONG);
-                                                    deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(View view) {
-                                                            listAdapter.undoRemoval();
+                                                public void onClick(View view) {
+                                                    listAdapter.undoRemoval();
 
-                                                            // Re-add selection to database
-                                                            for (final Task task : selection) {
-                                                                mToDoListRef.document(task.getTaskId()).set(task).addOnFailureListener(new OnFailureListener() {
-                                                                    @Override
-                                                                    public void onFailure(@NonNull Exception e) {
-                                                                        Log.w(LOG_NAME, "Failed to add task with id " + task.getTaskId() + ": " + e);
-                                                                    }
-                                                                });
-                                                            }
+                                                    // Re-add selection to database
+                                                    WriteBatch reAddBatch = mFireStore.batch();
+                                                    for (final Task task : selection) {
+                                                        reAddBatch.set(mToDoListRef.document(task.getTaskId()), task);
+                                                    }
+                                                    reAddBatch.commit().addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.w(LOG_NAME, "Failed to add one or more tasks: " + e);
+                                                            Toast.makeText(ToDoListActivity.this, getResources().getString(R.string.add_tasks_failed), Toast.LENGTH_LONG).show();
                                                         }
                                                     });
-                                                    deleteSnackbar.show();
-                                                }
-                                            }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w(LOG_NAME, "Failed to delete task with id " + task.getTaskId() + ": " + e);
-                                                    Toast.makeText(ToDoListActivity.this, getResources().getString(R.string.delete_task_failed, task.getTaskName()), Toast.LENGTH_LONG).show();
                                                 }
                                             });
-                                        } else {
-                                            mToDoListRef.document(task.getTaskId()).delete().addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w(LOG_NAME, "Failed to delete task with id " + task.getTaskId() + ": " + e);
-                                                    Toast.makeText(ToDoListActivity.this, getResources().getString(R.string.delete_task_failed, task.getTaskName()), Toast.LENGTH_LONG).show();
-                                                }
-                                            });
+                                            deleteSnackbar.show();
                                         }
-                                    }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(LOG_NAME, "Failed to add one or more tasks: " + e);
+                                            Toast.makeText(ToDoListActivity.this, getResources().getString(R.string.delete_tasks_failed), Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                                 }
                             })
                             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -394,7 +392,18 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         mListenerRegistration = mToDoListRef.addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-
+                if (queryDocumentSnapshots != null) {
+                    List<Task> newTodoList = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        Task task = document.toObject(Task.class);
+                        System.out.println(task);
+                        task.setTaskId(document.getId());
+                        newTodoList.add(task);
+                    }
+                    toDoList.clear();
+                    toDoList.addAll(newTodoList);
+                    listAdapter.notifyDataSetChanged();
+                }
             }
         });
     }
