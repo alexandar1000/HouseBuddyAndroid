@@ -178,7 +178,6 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
                 }
                 listAdapter.notifyDataSetChanged();
                 loadingLayout.setVisibility(View.GONE);
-                totalPrice();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

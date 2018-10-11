@@ -70,9 +70,9 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
         this.mExpenseListRef = cf;
     }
 
-
-
-
-
-
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        ExpensesActivity.totalPrice();
+    }
 }
