@@ -36,7 +36,6 @@
         android:ems="10"
         android:hint="@string/name"
         android:inputType="textPersonName"
-        android:text="@string/name"
         app:layout_constraintBottom_toTopOf="@+id/itemInfoEdit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

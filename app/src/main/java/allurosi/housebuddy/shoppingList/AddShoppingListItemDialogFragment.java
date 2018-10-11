@@ -19,6 +19,11 @@ public class AddShoppingListItemDialogFragment extends DialogFragment {
     private Button mAddSItemBtn;
     private Button mCancelAddSItemBtn;
 
+    public interface AddShoppingItemDialogueListener {
+        void onFinishEditDialog(ShoppingItem shoppingItem);
+    }
+
+
     public AddShoppingListItemDialogFragment() {}
 
     public static AddShoppingListItemDialogFragment newInstance(String title) {
@@ -54,17 +59,19 @@ public class AddShoppingListItemDialogFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
+
+        mAddSItemBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddShoppingItemDialogueListener listener = (AddShoppingItemDialogueListener) getActivity();
+                ShoppingItem shoppingItem = new ShoppingItem(mEditName.getText().toString(), mEditInfo.getText().toString());
+                listener.onFinishEditDialog(shoppingItem);
+                dismiss();
+            }
+        });
+
         String title = getArguments().getString("title", "Enter Name");
         getDialog().setTitle(title);
-
-
-
-
-
-//         Show soft keyboard automatically and request focus to field
-//        mEditText.requestFocus();
-//        getDialog().getWindow().setSoftInputMode(
-//                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
 }
