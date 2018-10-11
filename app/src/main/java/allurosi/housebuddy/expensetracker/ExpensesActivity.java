@@ -210,6 +210,14 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
         });
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Detach listener when it's no longer needed
+        mListenerRegistration.remove();
+    }
+
     private void initDummyData() {
         productList.add(new Product("Beer", 10.0));
         productList.add(new Product("Toilet Paper", 4));
