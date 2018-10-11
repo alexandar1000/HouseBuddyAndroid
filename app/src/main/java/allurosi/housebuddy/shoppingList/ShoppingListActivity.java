@@ -35,6 +35,17 @@ public class ShoppingListActivity extends AppCompatActivity implements AddShoppi
 
 //      TODO: retrieve shoping list data from firestore
 
+
+        /*
+        * Just for testing purposes, delete afterwards
+        * */
+        shoppingItems.add(new ShoppingItem("sponge", "for dishes"));
+        shoppingItems.add(new ShoppingItem("dish liquid", "for dishes"));
+        shoppingItems.add(new ShoppingItem("food", "for everyone"));
+
+
+
+
         mAdapter = new AddShoppingItemAdapter(shoppingItems);
         mRecyclerView.setAdapter(mAdapter);
 
