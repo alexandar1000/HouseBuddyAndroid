@@ -48,8 +48,8 @@ public class EditTaskActivity extends AppCompatActivity {
         mTask = new Task(originalTask);
 
         // Set values in layout
-        textTaskName.setText(mTask.getName());
-        textTaskDesc.setText(mTask.getDescription());
+        textTaskName.setText(mTask.getTaskName());
+        textTaskDesc.setText(mTask.getTaskDesc());
     }
 
     @Override
@@ -75,13 +75,13 @@ public class EditTaskActivity extends AppCompatActivity {
                 String newDesc = textTaskDesc.getText().toString();
 
                 // Only change the name and description if they are not empty
-                if (newName.equals("")) {
+                if (newName.isEmpty()) {
                     Toast.makeText(EditTaskActivity.this, getString(R.string.enter_name_alert), Toast.LENGTH_SHORT).show();
                 } else {
-                    mTask.setName(newName);
+                    mTask.setTaskName(newName);
 
-                    if (!newDesc.equals("")) {
-                        mTask.setDescription(newDesc);
+                    if (!newDesc.isEmpty()) {
+                        mTask.setTaskDesc(newDesc);
                     }
 
                     returnIntent.putExtra(TASK_MESSAGE, mTask);
@@ -101,9 +101,9 @@ public class EditTaskActivity extends AppCompatActivity {
         String newName = textTaskName.getText().toString();
         String newDesc = textTaskDesc.getText().toString();
 
-        mTask.setName(newName);
-        if (!newDesc.equals("")) {
-            mTask.setDescription(newDesc);
+        mTask.setTaskName(newName);
+        if (!newDesc.isEmpty()) {
+            mTask.setTaskDesc(newDesc);
         }
 
         if (mTask.equals(originalTask)) {

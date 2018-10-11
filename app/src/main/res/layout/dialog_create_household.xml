@@ -31,19 +31,19 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="@string/new_task"
+                android:text="@string/new_household"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
                 android:textColor="@android:color/white" />
 
             <Button
-                android:id="@+id/button_save"
+                android:id="@+id/button_create"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:paddingLeft="2dp"
                 android:paddingRight="2dp"
-                android:text="@string/save"
+                android:text="@string/create"
                 android:textColor="@android:color/white" />
 
         </LinearLayout>
@@ -62,7 +62,7 @@
         android:orientation="vertical">
 
         <android.support.design.widget.TextInputEditText
-            android:id="@+id/new_task_name"
+            android:id="@+id/new_household_name"
             style="@style/Base.Widget.MaterialComponents.TextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,16 +71,6 @@
             android:hint="@string/name"
             android:inputType="textPersonName"
             android:singleLine="true" />
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/new_task_description"
-            style="@style/Base.Widget.MaterialComponents.TextInputEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:ems="10"
-            android:hint="@string/description"
-            android:inputType="textMultiLine" />
     </LinearLayout>
 
 </LinearLayout>

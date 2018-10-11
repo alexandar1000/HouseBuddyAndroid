@@ -12,7 +12,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import allurosi.housebuddy.R;
@@ -40,8 +39,8 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
             convertView = LayoutInflater.from(getContext()).inflate(mResourceId, parent, false);
         }
 
-        TextView foodName = convertView.findViewById(R.id.item_task_name);
-        foodName.setText(task.getName());
+        TextView taskName = convertView.findViewById(R.id.item_task_name);
+        taskName.setText(task.getTaskName());
 
         CheckBox checkBox = convertView.findViewById(R.id.delete_checkbox);
 
@@ -50,9 +49,9 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
 
         // Mark completed tasks text green
         if (task.isCompleted()) {
-            foodName.setTextColor(mContext.getResources().getColor(R.color.colorCompletedText));
+            taskName.setTextColor(mContext.getResources().getColor(R.color.colorCompletedText));
         } else {
-            foodName.setTextColor(mContext.getResources().getColor(android.R.color.black));
+            taskName.setTextColor(mContext.getResources().getColor(android.R.color.black));
         }
 
         if (ToDoListActivity.isActionMode) {
@@ -78,10 +77,6 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
         }
 
         return convertView;
-    }
-
-    private void sortTasks() {
-        Collections.sort(toDoList);
     }
 
     boolean isSelected(Task task) {
@@ -118,8 +113,8 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
         notifyDataSetChanged();
     }
 
-    int selectionSize() {
-        return selection.size();
+    List<Task> getSelection() {
+        return selection;
     }
 
     void undoRemoval() {
@@ -130,7 +125,6 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        sortTasks();
     }
 
 

@@ -1,4 +1,4 @@
-package allurosi.housebuddy.todolist;
+package allurosi.housebuddy.expensetracker;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -19,33 +19,34 @@ import android.widget.ImageButton;
 
 import allurosi.housebuddy.R;
 
-public class AddTaskDialogFragment extends DialogFragment {
-
+public class AddExpenseDialogFragment extends DialogFragment {
+    private NewExpenseDialogListener listener;
+    private TextInputEditText newExpenseNameInput;
+    private TextInputEditText newExpensePriceInput;
     private Context mContext;
-    private Task newTask;
-    private TextInputEditText newTaskNameInput;
 
-    private NewTaskDialogListener listener;
+    private Product newExpense;
 
-    public interface NewTaskDialogListener {
-        void onAddNewTask(Task newTask);
 
-        void onCloseNewTaskDialog();
+    public interface NewExpenseDialogListener {
+        void onAddNewExpense(Product newProduct);
+
+        void onCloseNewExpenseDialog();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.dialog_new_task, container, false);
+        View rootView = inflater.inflate(R.layout.dialog_new_expense, container, false);
 
-        newTaskNameInput = rootView.findViewById(R.id.new_task_name);
-        final TextInputEditText newTaskDescInput = rootView.findViewById(R.id.new_task_description);
+        newExpenseNameInput = rootView.findViewById(R.id.new_expense_name);
+        newExpensePriceInput = rootView.findViewById(R.id.new_expense_price);
         ImageButton closeButton = rootView.findViewById(R.id.button_close);
-        Button saveButton = rootView.findViewById(R.id.button_save);
+        Button saveButton = rootView.findViewById(R.id.button_save_expense);
 
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!newTaskNameInput.getText().toString().isEmpty() || !newTaskDescInput.getText().toString().isEmpty()) {
+                if (!newExpenseNameInput.getText().toString().isEmpty() || !newExpensePriceInput.getText().toString().isEmpty()) {
                     showDiscardWarning();
                 } else {
                     dismiss();
@@ -56,9 +57,11 @@ public class AddTaskDialogFragment extends DialogFragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (createTask(newTaskNameInput.getText().toString(), newTaskDescInput.getText().toString())) {
+                String price = newExpensePriceInput.getText().toString();
+                String name =newExpenseNameInput.getText().toString();
+                if (createExpense(price, name)) {
                     // Notify the listener that a new task has to be added
-                    listener.onAddNewTask(newTask);
+                    listener.onAddNewExpense(newExpense);
                     dismiss();
                 }
             }
@@ -74,19 +77,22 @@ public class AddTaskDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    public void setListener(ToDoListActivity parent) {
-        listener = (NewTaskDialogListener) parent;
+    public void setListener(ExpensesActivity parent) {
+        listener = (NewExpenseDialogListener) parent;
     }
 
-    private boolean createTask(String newTaskName, String newTaskDescription) {
+    private boolean createExpense(String price, String newExpenseName) {
         // Notify the user if no name is supplied before pressing create
-        if (newTaskName.isEmpty()) {
-            newTaskNameInput.setError(getResources().getString(R.string.enter_name_alert));
+        if (newExpenseName.isEmpty()) {
+            newExpenseNameInput.setError(getResources().getString(R.string.enter_name_alert));
+            return false;
+        }
+        if(price.isEmpty()){
+            newExpensePriceInput.setError(getResources().getString(R.string.enter_price_alert));
             return false;
         }
 
-        newTask = new Task(newTaskName);
-        newTask.setTaskDesc(newTaskDescription);
+         newExpense = new Product(newExpenseName,Double.parseDouble(price));
 
         return true;
     }
@@ -115,7 +121,7 @@ public class AddTaskDialogFragment extends DialogFragment {
 
     @Override
     public void dismiss() {
-        listener.onCloseNewTaskDialog();
+        listener.onCloseNewExpenseDialog();
         if (getFragmentManager() != null) {
             getFragmentManager().popBackStack();
         }

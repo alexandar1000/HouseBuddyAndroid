@@ -7,7 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.google.firebase.firestore.CollectionReference;
 
 import java.util.List;
 
@@ -18,6 +21,10 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
     private Context mContext;
     private int resourceId;
     private List<Product> products;
+    private CollectionReference mExpenseListRef;
+    public static final String EXPENSE_MESSAGE = "Expense";
+
+    private static final String LOG_NAME = "ExpensesListActivity";
 
     public ExpensesListAdapter(Context context, int resourceId, List<Product> products) {
         super(context, resourceId, products);
@@ -28,8 +35,8 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Product product = getItem(position);
+    public View getView(final int position, @Nullable View convertView, @NonNull final ViewGroup parent) {
+        final Product product = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(resourceId, parent, false);
@@ -37,13 +44,35 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
 
         TextView productName = convertView.findViewById(R.id.item_product_name);
         TextView productPrice = convertView.findViewById(R.id.item_product_price);
+        ImageButton deletebutton = convertView.findViewById(R.id.delete_expense);
+
 
         if (product != null) {
             productName.setText(product.getName());
-            productPrice.setText(String.valueOf(product.getPrice()));
+            productPrice.setText("€"+String.format("%.2f",product.getPrice()));
         }
+
+        deletebutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ExpensesActivity.remove(product);
+                remove(product);
+                ExpensesActivity.totalPrice();
+
+            }
+        });
 
         return convertView;
     }
 
+    public void setmExpenseListRef(CollectionReference cf){
+        this.mExpenseListRef = cf;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        ExpensesActivity.totalPrice();
+    }
 }

@@ -23,12 +23,12 @@
         </activity>
         <activity
             android:name=".todolist.ToDoListActivity"
-            android:parentActivityName=".HouseholdManagerActivity">
+            android:parentActivityName=".householdmanager.HouseholdManagerActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".householdmanager.HouseholdManagerActivity" />
         </activity>
         <activity
             android:name=".todolist.ViewTaskActivity"
@@ -41,9 +41,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".todolist.ToDoListActivity" />
         </activity>
-        <activity
-            android:name=".authentication.LogInActivity"
-            android:parentActivityName=".authentication.LogInActivity"/>
+        <activity android:name=".authentication.LogInActivity" />
         <activity android:name=".HouseholdManagerActivity" />
         <!--This first line of the following metadata might cause some errors in the future. It was a suggested solution because of a conflict about the facebook_app_id-->
         <!--tools:replace="android:value"-->
@@ -78,12 +76,12 @@
         <activity
             android:name=".expensetracker.ExpensesActivity"
             android:label="@string/title_activity_expenses_list"
-            android:parentActivityName=".HouseholdManagerActivity">
+            android:parentActivityName=".householdmanager.HouseholdManagerActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".HouseholdManagerActivity" />
+                android:value=".householdmanager.HouseholdManagerActivity" />
         </activity>
         <activity android:name=".shoppingList.ShoppingListActivity" />
     </application>

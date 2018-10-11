@@ -47,6 +47,7 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/total_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -54,5 +55,19 @@
             android:text="20.0"
             android:textSize="16sp" />
     </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/expenses_list_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorDefault">
+
+        <ProgressBar
+            android:id="@+id/progress_spinner"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+    </FrameLayout>
 
 </RelativeLayout>
