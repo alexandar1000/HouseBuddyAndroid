@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +22,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -46,6 +50,8 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
     public static final String COLLECTION_PATH_EXPENSES_LIST = "expenses_list";
     private static CollectionReference mExpensesListRef;
     private FrameLayout loadingLayout;
+
+    private ListenerRegistration mListenerRegistration;
 
 
 
@@ -181,6 +187,28 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
         });
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Add listener which updates the invitation code if another user changes it
+        mListenerRegistration = mExpensesListRef.addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (queryDocumentSnapshots != null) {
+                    List<Product> newProductList = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        Product product = document.toObject(Product.class);
+                        product.setProductId(document.getId());
+                        newProductList.add(product);
+                    }
+                    productList.clear();
+                    productList.addAll(newProductList);
+                    listAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
 
     private void initDummyData() {
         productList.add(new Product("Beer", 10.0));
