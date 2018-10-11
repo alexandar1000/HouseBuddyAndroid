@@ -54,20 +54,6 @@
         app:layout_constraintTop_toBottomOf="@+id/itemInfoEdit">
 
         <Button
-            android:id="@+id/addShoppingItemBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/add"
-            app:layout_constraintTop_toBottomOf="@+id/itemInfoEdit"
-            tools:layout_editor_absoluteX="84dp" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <Button
             android:id="@+id/cancelAddingShoppingItemBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -75,6 +61,20 @@
             android:text="@string/cancel"
             app:layout_constraintTop_toBottomOf="@+id/itemInfoEdit"
             tools:layout_editor_absoluteX="288dp" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/addShoppingItemBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/ok"
+            app:layout_constraintTop_toBottomOf="@+id/itemInfoEdit"
+            tools:layout_editor_absoluteX="84dp" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

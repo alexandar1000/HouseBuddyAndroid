@@ -45,7 +45,6 @@ public class ShoppingListActivity extends AppCompatActivity implements AddShoppi
 
 
 
-
         mAdapter = new AddShoppingItemAdapter(shoppingItems);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -66,6 +65,15 @@ public class ShoppingListActivity extends AppCompatActivity implements AddShoppi
         FragmentManager fm = getSupportFragmentManager();
         AddShoppingListItemDialogFragment addShoppingListItemDialogFragment = AddShoppingListItemDialogFragment.newInstance("Add Item");
         addShoppingListItemDialogFragment.show(fm, "new_shopping_list_item");
+    }
+
+    public void editExistingItem(String name, String info) {
+        FragmentManager fm = getSupportFragmentManager();
+        AddShoppingListItemDialogFragment addShoppingListItemDialogFragment = AddShoppingListItemDialogFragment.newInstance("Edit Item Item");
+        addShoppingListItemDialogFragment.getmEditName().setText(name);
+        addShoppingListItemDialogFragment.getmEditInfo().setText(info);
+        addShoppingListItemDialogFragment.show(fm, "new_shopping_list_item");
+
     }
 
     @Override

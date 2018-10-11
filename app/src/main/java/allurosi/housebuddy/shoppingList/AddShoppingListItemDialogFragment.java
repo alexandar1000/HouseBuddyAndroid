@@ -74,4 +74,11 @@ public class AddShoppingListItemDialogFragment extends DialogFragment {
         getDialog().setTitle(title);
     }
 
+    public EditText getmEditName() {
+        return mEditName;
+    }
+
+    public EditText getmEditInfo() {
+        return mEditInfo;
+    }
 }
