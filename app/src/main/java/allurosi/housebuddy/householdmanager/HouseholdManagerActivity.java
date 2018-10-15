@@ -133,11 +133,11 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
                         }
                     } else {
                         // User is an existing user without a household
-                        // TODO: create and join household functionality
                         setContentView(R.layout.no_household_layout);
                     }
                 } else {
                     // User is a new user
+                    // TODO: maybe check if the user account already defines the name
                     setContentView(R.layout.no_household_layout);
                     addDialogFragment(new NewUserDialogFragment());
                 }
@@ -349,6 +349,11 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
                     }
                 })
                 .show();
+    }
+
+    public void buttonHouseholdFeed(View view) {
+        Intent intent = new Intent(this, HouseholdFeedActivity.class);
+        startActivity(intent);
     }
 
     public void buttonToDoList(View view) {

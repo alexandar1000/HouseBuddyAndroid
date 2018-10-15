@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="allurosi.housebuddy">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- TODO: Remove android:name if DB is done -->
     <application
         android:name=".HouseBuddy"
@@ -44,30 +46,32 @@
         <activity android:name=".authentication.LogInActivity" />
         <activity
             android:name=".householdmanager.HouseholdManagerActivity"
-            android:parentActivityName=".authentication.LogInActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:parentActivityName=".authentication.LogInActivity">
 
-        <!-- Parent activity meta-data to support 4.0 and lower -->
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value=".authentication.LogInActivity" />
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".authentication.LogInActivity" />
         </activity>
-        <!--This first line of the following metadata might cause some errors in the future. It was a suggested solution because of a conflict about the facebook_app_id-->
-        <!--tools:replace="android:value"-->
-        <meta-data android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_application_id"/>
+        <!-- This first line of the following metadata might cause some errors in the future. It was a suggested solution because of a conflict about the facebook_app_id -->
+        <!-- tools:replace="android:value" -->
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_application_id" />
 
-        <activity android:name="com.facebook.FacebookActivity"
-            android:configChanges=
-                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
         <activity
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
@@ -92,8 +96,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".householdmanager.HouseholdManagerActivity" />
         </activity>
+        <activity
+            android:name=".householdmanager.HouseholdFeedActivity"
+            android:label="@string/title_activity_household_feed">
+        </activity>
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET"/>
 
 </manifest>

@@ -20,6 +20,13 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
+            android:id="@+id/button_activity_feed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="buttonHouseholdFeed"
+            android:text="Activity Feed" />
+
+        <Button
             android:id="@+id/choreScheduleBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
