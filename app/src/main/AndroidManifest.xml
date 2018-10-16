@@ -42,7 +42,7 @@
                 android:value=".todolist.ToDoListActivity" />
         </activity>
         <activity android:name=".authentication.LogInActivity" />
-        <activity android:name=".HouseholdManagerActivity" />
+        <activity android:name=".householdmanager.HouseholdManagerActivity" />
         <!--This first line of the following metadata might cause some errors in the future. It was a suggested solution because of a conflict about the facebook_app_id-->
         <!--tools:replace="android:value"-->
         <meta-data android:name="com.facebook.sdk.ApplicationId"

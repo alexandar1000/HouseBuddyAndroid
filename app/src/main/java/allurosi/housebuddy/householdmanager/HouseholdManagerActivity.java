@@ -37,6 +37,7 @@ import java.util.Map;
 import allurosi.housebuddy.R;
 import allurosi.housebuddy.authentication.LogInActivity;
 import allurosi.housebuddy.expensetracker.ExpensesActivity;
+import allurosi.housebuddy.shoppingList.ShoppingListActivity;
 import allurosi.housebuddy.todolist.ToDoListActivity;
 
 import static allurosi.housebuddy.authentication.LogInActivity.USER_EMAIL;
@@ -358,6 +359,11 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
 
     public void buttonExpensesList(View view) {
         Intent intent = new Intent(this, ExpensesActivity.class);
+        startActivity(intent);
+    }
+
+    public void buttonToShoppingList(View view) {
+        Intent intent = new Intent(this, ShoppingListActivity.class);
         startActivity(intent);
     }
 
