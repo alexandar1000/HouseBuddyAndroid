@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -29,53 +30,65 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import allurosi.housebuddy.R;
+import allurosi.housebuddy.logging.LogEntry;
+import allurosi.housebuddy.logging.Loggable;
 
+import static allurosi.housebuddy.authentication.LogInActivity.USER_ID;
+import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.FIELD_FIRST_NAME;
+import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.FIELD_LAST_NAME;
 import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.HOUSEHOLD_PATH;
+import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.USERS_COLLECTION_PATH;
+import static allurosi.housebuddy.todolist.ToDoListActivity.COLLECTION_PATH_CHANGE_LOG;
 
-public class ExpensesActivity extends AppCompatActivity implements AddExpenseDialogFragment.NewExpenseDialogListener{
-    private static DecimalFormat df2 = new DecimalFormat(".##");
+public class ExpensesActivity extends AppCompatActivity implements AddExpenseDialogFragment.NewExpenseDialogListener, Loggable {
+
     private static List<Product> productList = new ArrayList<>();
-    public static TextView totalprice;
     private ExpensesListAdapter listAdapter;
 
-
     private static final String LOG_NAME = "ExpensesListActivity";
-
-    private static FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
     public static final String COLLECTION_PATH_EXPENSES_LIST = "expenses_list";
-    private static CollectionReference mExpensesListRef;
+    private static final String LOCATION_EXPENSE_LIST = "Expenses List";
+
+    private String mUserId;
+    private String mFirstName, mLastName;
+
     private FrameLayout loadingLayout;
+    private TextView totalPrice;
+
+    private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+    private static CollectionReference mExpensesListRef;
+    private CollectionReference mChangeLogRef;
 
     private ListenerRegistration mListenerRegistration;
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_expenses);
 
+        if (mUserId == null) {
+            mUserId = PreferenceManager.getDefaultSharedPreferences(this).getString(USER_ID, "");
+        }
+
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Expenses List");
         }
+
         loadingLayout = findViewById(R.id.expenses_list_loading);
         ListView productListView = findViewById(R.id.product_list);
         listAdapter = new ExpensesListAdapter(this, R.layout.product_list_item, productList);
 
-        listAdapter.setmExpenseListRef(mExpensesListRef);
         productListView.setAdapter(listAdapter);
-        totalprice = findViewById(R.id.total_price);
-        //initDummyData();
+        totalPrice = findViewById(R.id.total_price);
+
         fetchExpenses();
         totalPrice();
-
     }
 
     @Override
@@ -110,6 +123,40 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         transaction.add(android.R.id.content, addExpenseDialogFragment).addToBackStack(null).commit();
+    }
+
+    public void logChange(final int changeActionStringResource) {
+        if (mFirstName == null || mLastName == null) {
+            mFireStore.collection(USERS_COLLECTION_PATH).document(mUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    mFirstName = documentSnapshot.getString(FIELD_FIRST_NAME);
+                    mLastName = documentSnapshot.getString(FIELD_LAST_NAME);
+
+                    // Add change log containing the change location, change info and a timestamp
+                    LogEntry logEntry = new LogEntry(LOCATION_EXPENSE_LIST, getResources().getString(changeActionStringResource), mFirstName + " " + mLastName, new Timestamp(new Date()));
+                    mChangeLogRef.add(logEntry).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(LOG_NAME, "Failed to add log entry: " + e);
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(LOG_NAME, "Failed to retrieve name for logging: " + e);
+                }
+            });
+        } else {
+            LogEntry logEntry = new LogEntry(LOCATION_EXPENSE_LIST, getResources().getString(changeActionStringResource), mFirstName + " " + mLastName, new Timestamp(new Date()));
+            mChangeLogRef.add(logEntry).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(LOG_NAME, "Failed to add log entry: " + e);
+                }
+            });
+        }
     }
 
     @Override
@@ -148,6 +195,7 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
         mExpensesListRef.add(newProduct).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
+                logChange(R.string.action_added_product);
 
                 newProduct.setProductId(documentReference.getId());
             }
@@ -163,8 +211,11 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
     private void fetchExpenses() {
         // Get stored household path
         String householdPath = PreferenceManager.getDefaultSharedPreferences(this).getString(HOUSEHOLD_PATH, "");
+        DocumentReference householdRef = mFireStore.document(householdPath);
 
-        mExpensesListRef = mFireStore.document(householdPath).collection(COLLECTION_PATH_EXPENSES_LIST);
+        mChangeLogRef = householdRef.collection(COLLECTION_PATH_CHANGE_LOG);
+        mExpensesListRef = householdRef.collection(COLLECTION_PATH_EXPENSES_LIST);
+
         mExpensesListRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -218,34 +269,26 @@ public class ExpensesActivity extends AppCompatActivity implements AddExpenseDia
         mListenerRegistration.remove();
     }
 
-    private void initDummyData() {
-        productList.add(new Product("Beer", 10.0));
-        productList.add(new Product("Toilet Paper", 4));
-        productList.add(new Product("Air softener", 3.5));
-        productList.add(new Product("Plate", 2.5));
-        productList.add(new Product("Nut",23.60));
-        productList.add(new Product("Beer", 10.0));
-        productList.add(new Product("Toilet Paper", 4));
-        productList.add(new Product("Air softener", 3.5));
-        productList.add(new Product("Plate", 2.5));
-        productList.add(new Product("Nut",23.60));
-        productList.add(new Product("Beer", 10.0));
-        productList.add(new Product("Toilet Paper", 4));
-        productList.add(new Product("Air softener", 3.5));
-        productList.add(new Product("Plate", 2.5));
-        productList.add(new Product("Nut",23.60));
+    public void remove(Product product){
+        mExpensesListRef.document(product.getProductId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                logChange(R.string.action_removed_product);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(LOG_NAME, "Failed to delete Expense from database: " + e);
+            }
+        });
     }
 
-    public static void remove(Product product){
-        mExpensesListRef.document(product.getProductId()).delete();
-    }
-
-    public static void totalPrice(){
-        double total=0;
-        for(int i=0;i<productList.size();i++){
-            total+=productList.get(i).getPrice();
+    public void totalPrice(){
+        double total = 0;
+        for (int i = 0; i < productList.size(); i++) {
+            total += productList.get(i).getPrice();
         }
-        totalprice.setText("€"+String.format("%.2f",total));
+        totalPrice.setText("€"+String.format("%.2f",total));
     }
 
 }

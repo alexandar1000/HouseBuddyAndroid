@@ -3,6 +3,7 @@ package allurosi.housebuddy.todolist;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -29,25 +30,32 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import allurosi.housebuddy.R;
+import allurosi.housebuddy.logging.LogEntry;
+import allurosi.housebuddy.logging.Loggable;
 
+import static allurosi.housebuddy.authentication.LogInActivity.USER_ID;
+import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.FIELD_FIRST_NAME;
+import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.FIELD_LAST_NAME;
 import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.HOUSEHOLD_PATH;
+import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.USERS_COLLECTION_PATH;
 import static allurosi.housebuddy.todolist.ViewTaskActivity.TASK_MESSAGE_ORIGINAL;
 
-public class ToDoListActivity extends AppCompatActivity implements AddTaskDialogFragment.NewTaskDialogListener {
+public class ToDoListActivity extends AppCompatActivity implements AddTaskDialogFragment.NewTaskDialogListener, Loggable {
 
     private static final String LOG_NAME = "ToDoListActivity";
     public static final String TASK_MESSAGE = "Task";
@@ -58,18 +66,25 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     public static final int RESULT_EDIT = 2;
 
     public static final String COLLECTION_PATH_TO_DO_LIST = "to_do_list";
+    public static final String COLLECTION_PATH_CHANGE_LOG = "change_log";
+    public static final String LOCATION_TO_DO_LIST = "To Do List";
 
     private List<Task> toDoList = new ArrayList<>();
     private ToDoListAdapter listAdapter;
     private FloatingActionButton fab;
     private FrameLayout loadingLayout;
     private Task lastDeleted;
+    private String mUserId;
+    private String mFirstName, mLastName;
+
+    private SharedPreferences mSharedPreferences;
 
     public static Boolean isActionMode = false;
     public static ActionMode mActionMode = null;
 
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
     private CollectionReference mToDoListRef;
+    private CollectionReference mChangeLogRef;
 
     private ListenerRegistration mListenerRegistration;
 
@@ -78,8 +93,11 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_to_do_list);
 
-        // Fetch tasks from database
-        fetchTasks();
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (mUserId == null) {
+            mUserId = mSharedPreferences.getString(USER_ID, "");
+        }
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getString(R.string.to_do_list));
@@ -119,33 +137,6 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
         });
     }
 
-    private void fetchTasks() {
-        // Get stored household path
-        String householdPath = PreferenceManager.getDefaultSharedPreferences(this).getString(HOUSEHOLD_PATH, "");
-
-        mToDoListRef = mFireStore.document(householdPath).collection(COLLECTION_PATH_TO_DO_LIST);
-        mToDoListRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                    // Add all tasks from DB that are not in the todoList yet to the todoList
-                    Task task = document.toObject(Task.class);
-                    task.setTaskId(document.getId());
-                    if (!toDoList.contains(task)) {
-                        toDoList.add(task);
-                    }
-                }
-                listAdapter.notifyDataSetChanged();
-                loadingLayout.setVisibility(View.GONE);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(LOG_NAME, "Failed to retrieve to-do list collection: " + e);
-            }
-        });
-    }
-
     private void addTaskDialog() {
         AddTaskDialogFragment addTaskDialogFragment = new AddTaskDialogFragment();
         addTaskDialogFragment.setListener(this);
@@ -180,6 +171,9 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
             public void onSuccess(DocumentReference documentReference) {
                 // Set auto generated FireStore id as task id
                 newTask.setTaskId(documentReference.getId());
+
+                // Add adding task action to change log
+                logChange(R.string.action_added_task);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -187,6 +181,40 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                 Log.w(LOG_NAME, "Failed to add task to database: " + e);
             }
         });
+    }
+
+    public void logChange(final int changeActionStringResource) {
+        if (mFirstName == null || mLastName == null) {
+            mFireStore.collection(USERS_COLLECTION_PATH).document(mUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    mFirstName = documentSnapshot.getString(FIELD_FIRST_NAME);
+                    mLastName = documentSnapshot.getString(FIELD_LAST_NAME);
+
+                    // Add change log containing the change location, change info and a timestamp
+                    LogEntry logEntry = new LogEntry(LOCATION_TO_DO_LIST, getResources().getString(changeActionStringResource), mFirstName + " " + mLastName, new Timestamp(new Date()));
+                    mChangeLogRef.add(logEntry).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(LOG_NAME, "Failed to add log entry: " + e);
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(LOG_NAME, "Failed to retrieve name for logging: " + e);
+                }
+            });
+        } else {
+            LogEntry logEntry = new LogEntry(LOCATION_TO_DO_LIST, getResources().getString(changeActionStringResource), mFirstName + " " + mLastName, new Timestamp(new Date()));
+            mChangeLogRef.add(logEntry).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(LOG_NAME, "Failed to add log entry: " + e);
+                }
+            });
+        }
     }
 
     @Override
@@ -226,6 +254,9 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     mToDoListRef.document(taskToDelete.getTaskId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            // Add deleting task action to change log
+                            logChange(R.string.action_removed_task);
+
                             // Show snackbar with option to undo removal
                             Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, 1), Snackbar.LENGTH_LONG);
                             deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
@@ -250,6 +281,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     Task originalTask = data.getParcelableExtra(TASK_MESSAGE_ORIGINAL);
 
                     // Replace old task in database
+                    // TODO: do we want to log editing of tasks?
                     mToDoListRef.document(originalTask.getTaskId()).set(newTask).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
@@ -324,6 +356,9 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                                     deleteBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
+                                            // Add deleting tasks action to change log
+                                            logChange(R.string.action_removed_tasks);
+
                                             // Show snackbar with option to undo removal
                                             Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, selectionSize), Snackbar.LENGTH_LONG);
                                             deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
@@ -404,10 +439,23 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     public void onStart() {
         super.onStart();
 
-        // Add listener which updates the invitation code if another user changes it
+        // Get stored household path
+        String householdPath = mSharedPreferences.getString(HOUSEHOLD_PATH, "");
+        DocumentReference householdRef = mFireStore.document(householdPath);
+
+        mChangeLogRef = householdRef.collection(COLLECTION_PATH_CHANGE_LOG);
+        mToDoListRef = householdRef.collection(COLLECTION_PATH_TO_DO_LIST);
+
+        // Add listener which updates the todoList if another user changes it
+        // Is called once when addSnapshotListener is called
         mListenerRegistration = mToDoListRef.addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(LOG_NAME, "Listen error: ", e);
+                    return;
+                }
+
                 if (queryDocumentSnapshots != null) {
                     List<Task> newTodoList = new ArrayList<>();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
@@ -418,6 +466,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     toDoList.clear();
                     toDoList.addAll(newTodoList);
                     listAdapter.notifyDataSetChanged();
+                    loadingLayout.setVisibility(View.GONE);
                 }
             }
         });

@@ -94,4 +94,11 @@
     <string name="delete_tasks_failed">Failed to delete one or more tasks.</string>
     <string name="add_tasks_failed">Failed to add one or more tasks.</string>
     <string name="edit_task_failed">Failed to edit task.</string>
+    <string name="title_activity_household_feed">HouseholdFeed</string>
+    <string name="action_added_task">Added task</string>
+    <string name="action_removed_task">Removed task</string>
+    <string name="action_removed_tasks">Removed one or more tasks</string>
+    <string name="action_removed_product">Removed product</string>
+    <string name="action_added_product">Added product</string>
+    <string name="change_info">%s - %s</string>
 </resources>
