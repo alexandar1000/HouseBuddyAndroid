@@ -96,6 +96,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".householdmanager.HouseholdManagerActivity" />
         </activity>
+        <activity android:name=".shoppingList.ShoppingListActivity" />
         <activity
             android:name=".householdmanager.HouseholdFeedActivity"
             android:label="@string/title_activity_household_feed">

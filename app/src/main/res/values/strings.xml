@@ -57,6 +57,11 @@
     <string name="task_saved">Task saved.</string>
     <string name="mark_not_completed">Mark as not completed</string>
     <string name="title_activity_expenses_list">ExpensesListActivity</string>
+    <string name="item">Item</string>
+    <string name="cancel">Cancel</string>
+    <string name="add">Add</string>
+    <string name="info">Info</string>
+    <string name="ok">OK</string>
     <string name="loading_user_data">Loading user data…</string>
     <string name="no_household">It looks like you don\'t have a household yet! \n \nPress one of the buttons below to join an existing household or to create your own.</string>
     <string name="join_household">Join a household</string>
