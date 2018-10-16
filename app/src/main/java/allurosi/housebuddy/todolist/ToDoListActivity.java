@@ -37,7 +37,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -100,9 +99,6 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
             mUserId = mSharedPreferences.getString(USER_ID, "");
         }
 
-        // Fetch tasks from database
-        fetchTasks();
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getString(R.string.to_do_list));
         }
@@ -137,36 +133,6 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
             @Override
             public void onClick(View view) {
                 addTaskDialog();
-            }
-        });
-    }
-
-    private void fetchTasks() {
-        // Get stored household path
-        String householdPath = mSharedPreferences.getString(HOUSEHOLD_PATH, "");
-        DocumentReference householdRef = mFireStore.document(householdPath);
-
-        mChangeLogRef = householdRef.collection(COLLECTION_PATH_CHANGE_LOG);
-        mToDoListRef = householdRef.collection(COLLECTION_PATH_TO_DO_LIST);
-
-        mToDoListRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                    // Add all tasks from DB that are not in the todoList yet to the todoList
-                    Task task = document.toObject(Task.class);
-                    task.setTaskId(document.getId());
-                    if (!toDoList.contains(task)) {
-                        toDoList.add(task);
-                    }
-                }
-                listAdapter.notifyDataSetChanged();
-                loadingLayout.setVisibility(View.GONE);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(LOG_NAME, "Failed to retrieve to-do list collection: " + e);
             }
         });
     }
@@ -473,10 +439,23 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     public void onStart() {
         super.onStart();
 
-        // Add listener which updates the invitation code if another user changes it
+        // Get stored household path
+        String householdPath = mSharedPreferences.getString(HOUSEHOLD_PATH, "");
+        DocumentReference householdRef = mFireStore.document(householdPath);
+
+        mChangeLogRef = householdRef.collection(COLLECTION_PATH_CHANGE_LOG);
+        mToDoListRef = householdRef.collection(COLLECTION_PATH_TO_DO_LIST);
+
+        // Add listener which updates the todoList if another user changes it
+        // Is called once when addSnapshotListener is called
         mListenerRegistration = mToDoListRef.addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(LOG_NAME, "Listen error: ", e);
+                    return;
+                }
+
                 if (queryDocumentSnapshots != null) {
                     List<Task> newTodoList = new ArrayList<>();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
@@ -487,6 +466,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     toDoList.clear();
                     toDoList.addAll(newTodoList);
                     listAdapter.notifyDataSetChanged();
+                    loadingLayout.setVisibility(View.GONE);
                 }
             }
         });

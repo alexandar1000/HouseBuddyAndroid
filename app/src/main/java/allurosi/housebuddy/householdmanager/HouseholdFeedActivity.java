@@ -2,18 +2,17 @@ package allurosi.housebuddy.householdmanager;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ public class HouseholdFeedActivity extends AppCompatActivity {
     private HouseholdFeedAdapter mListAdapter;
 
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+    private ListenerRegistration mListenerRegistration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,37 +42,49 @@ public class HouseholdFeedActivity extends AppCompatActivity {
 
         RecyclerView houseHoldFeed = findViewById(R.id.household_feed);
 
-        fetchLogEntries();
         mListAdapter = new HouseholdFeedAdapter(mLogEntries);
         houseHoldFeed.setAdapter(mListAdapter);
         houseHoldFeed.setLayoutManager(new LinearLayoutManager(this));
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
 
-    private void fetchLogEntries() {
         // Get stored household path
         String householdPath = PreferenceManager.getDefaultSharedPreferences(this).getString(HOUSEHOLD_PATH, "");
-        DocumentReference householdRef = mFireStore.document(householdPath);
+        Query changeLogQuery = mFireStore.document(householdPath).collection(COLLECTION_PATH_CHANGE_LOG).orderBy(FIELD_TIME_STAMP, Query.Direction.DESCENDING);
 
-        // Order data to show latest changes first
-        householdRef.collection(COLLECTION_PATH_CHANGE_LOG).orderBy(FIELD_TIME_STAMP, Query.Direction.ASCENDING).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        // Add listener which updates the change log list if another user changes it
+        // Is called once when addSnapshotListener is called
+        mListenerRegistration = changeLogQuery.addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                    LogEntry logEntry = document.toObject(LogEntry.class);
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(LOG_NAME, "Listen error: ", e);
+                    return;
+                }
 
-                    if (!mLogEntries.contains(logEntry)) {
-                        mLogEntries.add(0, logEntry);
-                        mListAdapter.notifyItemChanged(0);
+                if (queryDocumentSnapshots != null) {
+                    List<LogEntry> newLogEntryList = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        LogEntry logEntry = document.toObject(LogEntry.class);
+                        newLogEntryList.add(logEntry);
                     }
+                    mLogEntries.clear();
+                    mLogEntries.addAll(newLogEntryList);
+                    mListAdapter.notifyDataSetChanged();
                 }
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(LOG_NAME, "Failed to retrieve log entries: " + e);
-            }
         });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Detach listener when it's no longer needed
+        mListenerRegistration.remove();
     }
 
 }

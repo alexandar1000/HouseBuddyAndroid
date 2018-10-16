@@ -50,4 +50,19 @@ public class LogEntry {
         this.timeStamp = timeStamp;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        LogEntry logEntry = (LogEntry) obj;
+        return changeLocation.equals(logEntry.getChangeAction()) && changeAction.equals(logEntry.getChangeAction())
+                && fullName.equals(logEntry.getFullName()) && timeStamp.equals(logEntry.getTimeStamp());
+    }
+
 }
