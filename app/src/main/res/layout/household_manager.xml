@@ -43,6 +43,7 @@
             android:id="@+id/shoppingListBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="buttonToShoppingList"
             android:text="@string/shopping_list" />
 
         <Button

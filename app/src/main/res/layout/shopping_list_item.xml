@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/shopping_list_item"
+    android:layout_width="match_parent"
+    android:layout_height="55dp"
+    android:layout_marginLeft="0dp"
+    android:layout_marginRight="0dp"
+    android:orientation="horizontal"
+    android:padding="15dp"
+    >
+
+  <TextView
+      android:id="@+id/singleItemShoppingListText"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:layout_weight="5"
+      android:text="@string/item" />
+
+  <ImageButton
+      android:id="@+id/shoppingListCheckButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="0"
+      app:srcCompat="@drawable/com_facebook_button_like_icon_selected" />
+</LinearLayout>
