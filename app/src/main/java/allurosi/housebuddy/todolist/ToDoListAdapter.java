@@ -54,7 +54,7 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
             taskName.setTextColor(mContext.getResources().getColor(android.R.color.black));
         }
 
-        if (ToDoListActivity.isActionMode) {
+        if (ToDoListFragment.isActionMode) {
             // Manages adding and removing from selection when an item is directly selected
             // (When notifyDataSetInvalidated is called)
             if (selection.contains(toDoList.get(position))) {
@@ -67,7 +67,7 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
             checkBox.setVisibility(View.VISIBLE);
 
             // Set contextual action bar title
-            ToDoListActivity.mActionMode.setTitle(mContext.getResources().getQuantityString(R.plurals.items_selected, selection.size(), selection.size()));
+            ToDoListFragment.mActionMode.setTitle(mContext.getResources().getQuantityString(R.plurals.items_selected, selection.size(), selection.size()));
         } else {
             // Remove and reset checkboxes
             checkBox.setVisibility(View.GONE);
@@ -146,7 +146,7 @@ public class ToDoListAdapter extends ArrayAdapter<Task> {
                 selection.remove(selectedTask);
             }
 
-            ToDoListActivity.mActionMode.setTitle(mContext.getResources().getQuantityString(R.plurals.items_selected, selection.size(), selection.size()));
+            ToDoListFragment.mActionMode.setTitle(mContext.getResources().getQuantityString(R.plurals.items_selected, selection.size(), selection.size()));
         }
     };
 

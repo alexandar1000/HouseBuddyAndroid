@@ -7,15 +7,17 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.ImageButton;
 
 import allurosi.housebuddy.R;
 
@@ -23,7 +25,7 @@ public class AddTaskDialogFragment extends DialogFragment {
 
     private Context mContext;
     private Task newTask;
-    private TextInputEditText newTaskNameInput;
+    private TextInputEditText newTaskNameInput, newTaskDescInput;
 
     private NewTaskDialogListener listener;
 
@@ -34,35 +36,20 @@ public class AddTaskDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Allow fragment to receive onOptionItemSelected calls
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.dialog_new_task, container, false);
 
         newTaskNameInput = rootView.findViewById(R.id.new_task_name);
-        final TextInputEditText newTaskDescInput = rootView.findViewById(R.id.new_task_description);
-        ImageButton closeButton = rootView.findViewById(R.id.button_close);
-        Button saveButton = rootView.findViewById(R.id.button_save);
+        newTaskDescInput = rootView.findViewById(R.id.new_task_description);
 
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!newTaskNameInput.getText().toString().isEmpty() || !newTaskDescInput.getText().toString().isEmpty()) {
-                    showDiscardWarning();
-                } else {
-                    dismiss();
-                }
-            }
-        });
-
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (createTask(newTaskNameInput.getText().toString(), newTaskDescInput.getText().toString())) {
-                    // Notify the listener that a new task has to be added
-                    listener.onAddNewTask(newTask);
-                    dismiss();
-                }
-            }
-        });
         return rootView;
     }
 
@@ -74,7 +61,34 @@ public class AddTaskDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    public void setListener(ToDoListActivity parent) {
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_save, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (!newTaskNameInput.getText().toString().isEmpty() || !newTaskDescInput.getText().toString().isEmpty()) {
+                    showDiscardWarning();
+                } else {
+                    dismiss();
+                }
+                return true;
+
+            case R.id.action_save:
+                if (createTask(newTaskNameInput.getText().toString(), newTaskDescInput.getText().toString())) {
+                    // Notify the listener that a new task has to be added
+                    listener.onAddNewTask(newTask);
+                    dismiss();
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void setListener(ToDoListFragment parent) {
         listener = (NewTaskDialogListener) parent;
     }
 

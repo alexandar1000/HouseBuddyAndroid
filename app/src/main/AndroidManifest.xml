@@ -23,36 +23,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".todolist.ToDoListActivity"
-            android:parentActivityName=".householdmanager.HouseholdManagerActivity">
-
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".householdmanager.HouseholdManagerActivity" />
-        </activity>
-        <activity
-            android:name=".todolist.ViewTaskActivity"
-            android:label="@string/title_activity_view_task"
-            android:parentActivityName=".todolist.ToDoListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".todolist.ToDoListActivity" />
-        </activity>
         <activity android:name=".authentication.LogInActivity" />
         <activity
             android:name=".householdmanager.HouseholdManagerActivity"
-            android:parentActivityName=".authentication.LogInActivity">
-
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".authentication.LogInActivity" />
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
+
         <!-- This first line of the following metadata might cause some errors in the future. It was a suggested solution because of a conflict about the facebook_app_id -->
         <!-- tools:replace="android:value" -->
         <meta-data
@@ -75,32 +51,7 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".todolist.EditTaskActivity"
-            android:label="@string/title_activity_edit_task"
-            android:parentActivityName=".todolist.ViewTaskActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".todolist.ViewTaskActivity" />
-        </activity>
-        <activity
-            android:name=".expensetracker.ExpensesActivity"
-            android:label="@string/title_activity_expenses_list"
-            android:parentActivityName=".householdmanager.HouseholdManagerActivity">
-
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".householdmanager.HouseholdManagerActivity" />
-        </activity>
         <activity android:name=".shoppingList.ShoppingListActivity" />
-        <activity
-            android:name=".householdmanager.HouseholdFeedActivity"
-            android:label="@string/title_activity_household_feed">
-        </activity>
     </application>
 
 </manifest>
