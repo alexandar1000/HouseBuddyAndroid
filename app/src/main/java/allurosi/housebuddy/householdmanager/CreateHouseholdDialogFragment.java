@@ -35,7 +35,7 @@ import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.LOG_
 import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.USERS_COLLECTION_PATH;
 import static allurosi.housebuddy.householdmanager.JoinHouseholdDialogFragment.FIELD_COLOR;
 import static allurosi.housebuddy.householdmanager.JoinHouseholdDialogFragment.FIELD_USER_REFERENCE;
-import static allurosi.housebuddy.householdmanager.JoinHouseholdDialogFragment.KEY_MEMBERS;
+import static allurosi.housebuddy.householdmanager.JoinHouseholdDialogFragment.COLLECTION_PATH_MEMBERS;
 
 public class CreateHouseholdDialogFragment extends DialogFragment implements DialogFragmentInterface {
 
@@ -118,7 +118,7 @@ public class CreateHouseholdDialogFragment extends DialogFragment implements Dia
                 // TODO: randomize color
                 mapUser.put(FIELD_COLOR, "0000FF");
                 mapUser.put(FIELD_USER_REFERENCE, userRef);
-                documentReference.collection(KEY_MEMBERS).document(userId).set(mapUser).addOnFailureListener(new OnFailureListener() {
+                documentReference.collection(COLLECTION_PATH_MEMBERS).document(userId).set(mapUser).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(LOG_NAME, "CREATE DIALOG: Failed to add user as household member: " + e);

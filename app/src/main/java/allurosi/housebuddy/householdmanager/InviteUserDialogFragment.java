@@ -61,15 +61,13 @@ public class InviteUserDialogFragment extends DialogFragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.dialog_invite_user, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_invite_user, container, false);
 
         inviteCodeView = rootView.findViewById(R.id.invite_code);
         Button renewCodeButton = rootView.findViewById(R.id.button_renew_code);
-        ImageButton closeButton = rootView.findViewById(R.id.button_close);
 
         // Get stored household path
-        SharedPreferences pref =
-                PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
         String householdPath = pref.getString(HOUSEHOLD_PATH, "");
 
         // Set to old stored invitation code if it exists
@@ -127,13 +125,6 @@ public class InviteUserDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 generateNewInviteCode();
-            }
-        });
-
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
             }
         });
 

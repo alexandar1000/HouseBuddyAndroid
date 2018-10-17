@@ -1,8 +1,8 @@
 package allurosi.housebuddy.todolist;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -10,17 +10,21 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -48,34 +52,33 @@ import allurosi.housebuddy.R;
 import allurosi.housebuddy.logging.LogEntry;
 import allurosi.housebuddy.logging.Loggable;
 
+import static allurosi.housebuddy.authentication.LogInActivity.FULL_NAME;
 import static allurosi.housebuddy.authentication.LogInActivity.USER_ID;
 import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.FIELD_FIRST_NAME;
 import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.FIELD_LAST_NAME;
 import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.HOUSEHOLD_PATH;
 import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.USERS_COLLECTION_PATH;
-import static allurosi.housebuddy.todolist.ViewTaskActivity.TASK_MESSAGE_ORIGINAL;
 
-public class ToDoListActivity extends AppCompatActivity implements AddTaskDialogFragment.NewTaskDialogListener, Loggable {
+public class ToDoListFragment extends Fragment implements AddTaskDialogFragment.NewTaskDialogListener,
+        ViewTaskFragment.ViewTaskFragmentListener, Loggable {
 
-    private static final String LOG_NAME = "ToDoListActivity";
+    private static final String LOG_NAME = "ToDoListFragment";
     public static final String TASK_MESSAGE = "Task";
-
-    public static final int VIEW_TASK = 1;
-
-    public static final int RESULT_DELETE = 1;
-    public static final int RESULT_EDIT = 2;
 
     public static final String COLLECTION_PATH_TO_DO_LIST = "to_do_list";
     public static final String COLLECTION_PATH_CHANGE_LOG = "change_log";
     public static final String LOCATION_TO_DO_LIST = "To Do List";
 
+    private Context mContext;
     private List<Task> toDoList = new ArrayList<>();
     private ToDoListAdapter listAdapter;
     private FloatingActionButton fab;
     private FrameLayout loadingLayout;
     private Task lastDeleted;
     private String mUserId;
-    private String mFirstName, mLastName;
+    private String mFullName;
+
+    private ActionBar mActionBar;
 
     private SharedPreferences mSharedPreferences;
 
@@ -89,43 +92,57 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     private ListenerRegistration mListenerRegistration;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_to_do_list);
+    }
 
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_to_do_list, container, false);
+
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 
         if (mUserId == null) {
             mUserId = mSharedPreferences.getString(USER_ID, "");
-        }
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(getString(R.string.to_do_list));
+            mFullName = mSharedPreferences.getString(FULL_NAME, "");
         }
 
         // TODO: change to RecyclerView in the future?
-        final ListView toDoListView = findViewById(R.id.to_do_list);
-        fab = findViewById(R.id.add_task_fab);
-        loadingLayout = findViewById(R.id.to_do_list_loading);
+        final ListView toDoListView = rootView.findViewById(R.id.to_do_list);
+        fab = rootView.findViewById(R.id.add_task_fab);
+        loadingLayout = rootView.findViewById(R.id.to_do_list_loading);
 
-        listAdapter = new ToDoListAdapter(this, R.layout.to_do_list_item, toDoList);
+        listAdapter = new ToDoListAdapter(mContext, R.layout.to_do_list_item, toDoList);
         toDoListView.setAdapter(listAdapter);
 
         // Add empty layout to todoListView
-        View emptyList = findViewById(R.id.to_do_list_empty);
+        View emptyList = rootView.findViewById(R.id.to_do_list_empty);
         toDoListView.setEmptyView(emptyList);
 
         // Allow multiple choices in selection mode and set listener
         toDoListView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
         toDoListView.setMultiChoiceModeListener(modeListener);
+
         toDoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Task clickedTask = (Task) adapterView.getItemAtPosition(i);
 
-                Intent intent = new Intent(ToDoListActivity.this, ViewTaskActivity.class);
-                intent.putExtra(TASK_MESSAGE, clickedTask);
-                startActivityForResult(intent, VIEW_TASK);
+                ViewTaskFragment viewTaskFragment = new ViewTaskFragment();
+                viewTaskFragment.setListener(ToDoListFragment.this);
+
+                updateActionBar(clickedTask.getTaskName(), R.drawable.ic_arrow_back_white);
+
+                // Add task as argument for the fragment
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(TASK_MESSAGE, clickedTask);
+                viewTaskFragment.setArguments(bundle);
+
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                transaction.replace(R.id.flContent, viewTaskFragment).addToBackStack(null).commit();
             }
         });
 
@@ -135,33 +152,28 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                 addTaskDialog();
             }
         });
+
+        return rootView;
+    }
+
+    private void updateActionBar(String title, int backDrawableId) {
+        mActionBar.setTitle(title);
+        mActionBar.setHomeAsUpIndicator(backDrawableId);
     }
 
     private void addTaskDialog() {
         AddTaskDialogFragment addTaskDialogFragment = new AddTaskDialogFragment();
         addTaskDialogFragment.setListener(this);
 
-        // Hide to do list action bar and fab
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
-        }
+        // Hide fab, change actionBar
         fab.hide();
-
-        final FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                // DialogFragment is removed
-                if (fragmentManager.getBackStackEntryCount() == 0) {
-                    onCloseNewTaskDialog();
-                }
-            }
-        });
+        updateActionBar(mContext.getResources().getString(R.string.new_task), R.drawable.ic_close_white);
 
         // Add DialogFragment with transaction
+        FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.add(R.id.to_do_list_root_view, addTaskDialogFragment).addToBackStack(null).commit();
+        transaction.replace(R.id.flContent, addTaskDialogFragment).addToBackStack(null).commit();
     }
 
     private void addTask(final Task newTask) {
@@ -184,15 +196,17 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     }
 
     public void logChange(final int changeActionStringResource) {
-        if (mFirstName == null || mLastName == null) {
+        mFullName = mSharedPreferences.getString(FULL_NAME, "");
+        if (mFullName.equals("")) {
             mFireStore.collection(USERS_COLLECTION_PATH).document(mUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    mFirstName = documentSnapshot.getString(FIELD_FIRST_NAME);
-                    mLastName = documentSnapshot.getString(FIELD_LAST_NAME);
+                    String firstName = documentSnapshot.getString(FIELD_FIRST_NAME);
+                    String lastName = documentSnapshot.getString(FIELD_LAST_NAME);
+                    mFullName = firstName + " " + lastName;
 
                     // Add change log containing the change location, change info and a timestamp
-                    LogEntry logEntry = new LogEntry(LOCATION_TO_DO_LIST, getResources().getString(changeActionStringResource), mFirstName + " " + mLastName, new Timestamp(new Date()));
+                    LogEntry logEntry = new LogEntry(LOCATION_TO_DO_LIST, mContext.getResources().getString(changeActionStringResource), mFullName, new Timestamp(new Date()));
                     mChangeLogRef.add(logEntry).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
@@ -207,7 +221,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                 }
             });
         } else {
-            LogEntry logEntry = new LogEntry(LOCATION_TO_DO_LIST, getResources().getString(changeActionStringResource), mFirstName + " " + mLastName, new Timestamp(new Date()));
+            LogEntry logEntry = new LogEntry(LOCATION_TO_DO_LIST, mContext.getResources().getString(changeActionStringResource), mFullName, new Timestamp(new Date()));
             mChangeLogRef.add(logEntry).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
@@ -228,70 +242,63 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
     @Override
     public void onCloseNewTaskDialog() {
         // Hide keyboard after closing the dialog
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
-            imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            imm.hideSoftInputFromWindow(((AppCompatActivity) mContext).getWindow().getDecorView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
 
-        // Return toolbar and fab
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().show();
-        }
+        // Return fab and change action bar back
         fab.show();
+        updateActionBar(mContext.getResources().getString(R.string.app_name), R.drawable.ic_menu_white);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Handle result of ViewTaskActivity
-        if (requestCode == VIEW_TASK) {
-            switch (resultCode) {
-                case RESULT_DELETE:
-                    // Remove task from list
-                    final Task taskToDelete = data.getParcelableExtra(TASK_MESSAGE);
-                    lastDeleted = new Task(taskToDelete);
+    public void onDeleteTask(final Task taskToDelete) {
+        lastDeleted = new Task(taskToDelete);
 
-                    // Remove task from database
-                    mToDoListRef.document(taskToDelete.getTaskId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            // Add deleting task action to change log
-                            logChange(R.string.action_removed_task);
+        // Remove task from database
+        mToDoListRef.document(taskToDelete.getTaskId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // Add deleting task action to change log
+                logChange(R.string.action_removed_task);
 
-                            // Show snackbar with option to undo removal
-                            Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, 1), Snackbar.LENGTH_LONG);
-                            deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    addTask(lastDeleted);
-                                }
-                            });
-                            deleteSnackbar.show();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(LOG_NAME, "Failed to delete task: " + e);
-                            Toast.makeText(ToDoListActivity.this, getResources().getString(R.string.delete_task_failed, taskToDelete.getTaskName()), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    break;
-
-                case RESULT_EDIT:
-                    Task newTask = data.getParcelableExtra(TASK_MESSAGE);
-                    Task originalTask = data.getParcelableExtra(TASK_MESSAGE_ORIGINAL);
-
-                    // Replace old task in database
-                    // TODO: do we want to log editing of tasks?
-                    mToDoListRef.document(originalTask.getTaskId()).set(newTask).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(LOG_NAME, "Failed to edit task: " + e);
-                            Toast.makeText(ToDoListActivity.this, getResources().getString(R.string.edit_task_failed), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    break;
+                // Show snackbar with option to undo removal
+                Snackbar deleteSnackbar = Snackbar.make(((AppCompatActivity) mContext).findViewById(android.R.id.content), mContext.getResources().getQuantityString(R.plurals.task_deleted, 1), Snackbar.LENGTH_LONG);
+                deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        addTask(lastDeleted);
+                    }
+                });
+                deleteSnackbar.show();
             }
-        }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(LOG_NAME, "Failed to delete task: " + e);
+                Toast.makeText(mContext, mContext.getResources().getString(R.string.delete_task_failed, taskToDelete.getTaskName()), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    @Override
+    public void onEditTask(Task newTask, Task originalTask) {
+        // Replace old task in database
+        // TODO: do we want to log editing of tasks?
+        mToDoListRef.document(originalTask.getTaskId()).set(newTask).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(LOG_NAME, "Failed to edit task: " + e);
+                Toast.makeText(mContext, mContext.getResources().getString(R.string.edit_task_failed), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    @Override
+    public void onCloseViewTask() {
+        updateActionBar(mContext.getResources().getString(R.string.app_name), R.drawable.ic_menu_white);
+        getFragmentManager().popBackStack();
     }
 
     AbsListView.MultiChoiceModeListener modeListener = new AbsListView.MultiChoiceModeListener() {
@@ -336,12 +343,12 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
                     AlertDialog.Builder builder;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        builder = new AlertDialog.Builder(ToDoListActivity.this, android.R.style.ThemeOverlay_Material_Dialog_Alert);
+                        builder = new AlertDialog.Builder(mContext, android.R.style.ThemeOverlay_Material_Dialog_Alert);
                     } else {
-                        builder = new AlertDialog.Builder(ToDoListActivity.this);
+                        builder = new AlertDialog.Builder(mContext);
                     }
 
-                    builder.setMessage(getResources().getQuantityString(R.plurals.delete_task_question, selectionSize))
+                    builder.setMessage(mContext.getResources().getQuantityString(R.plurals.delete_task_question, selectionSize))
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     // Delete selection from adapter list, finish action mode
@@ -360,7 +367,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                                             logChange(R.string.action_removed_tasks);
 
                                             // Show snackbar with option to undo removal
-                                            Snackbar deleteSnackbar = Snackbar.make(findViewById(R.id.to_do_list_root_view), getResources().getQuantityString(R.plurals.task_deleted, selectionSize), Snackbar.LENGTH_LONG);
+                                            Snackbar deleteSnackbar = Snackbar.make(getActivity().findViewById(android.R.id.content), mContext.getResources().getQuantityString(R.plurals.task_deleted, selectionSize), Snackbar.LENGTH_LONG);
                                             deleteSnackbar.setAction(getString(R.string.action_undo), new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View view) {
@@ -375,7 +382,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                                                         @Override
                                                         public void onFailure(@NonNull Exception e) {
                                                             Log.w(LOG_NAME, "Failed to add one or more tasks: " + e);
-                                                            Toast.makeText(ToDoListActivity.this, getResources().getString(R.string.add_tasks_failed), Toast.LENGTH_LONG).show();
+                                                            Toast.makeText(mContext, mContext.getResources().getString(R.string.add_tasks_failed), Toast.LENGTH_LONG).show();
                                                         }
                                                     });
                                                 }
@@ -386,7 +393,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             Log.w(LOG_NAME, "Failed to add one or more tasks: " + e);
-                                            Toast.makeText(ToDoListActivity.this, getResources().getString(R.string.delete_tasks_failed), Toast.LENGTH_LONG).show();
+                                            Toast.makeText(mContext, mContext.getResources().getString(R.string.delete_tasks_failed), Toast.LENGTH_LONG).show();
                                         }
                                     });
                                 }
@@ -411,7 +418,7 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
                     completedBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(ToDoListActivity.this, getResources().getQuantityString(R.plurals.task_marked_completed, selectionSize), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, mContext.getResources().getQuantityString(R.plurals.task_marked_completed, selectionSize), Toast.LENGTH_SHORT).show();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -478,6 +485,21 @@ public class ToDoListActivity extends AppCompatActivity implements AddTaskDialog
 
         // Detach listener when it's no longer needed
         mListenerRegistration.remove();
+    }
+
+    // Deprecated method to support lower APIs
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mContext = activity;
+        mActionBar = ((AppCompatActivity) activity).getSupportActionBar();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+        mActionBar = ((AppCompatActivity) context).getSupportActionBar();
     }
 
 }

@@ -7,10 +7,14 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -27,11 +31,16 @@ public class AddExpenseDialogFragment extends DialogFragment {
 
     private Product newExpense;
 
-
     public interface NewExpenseDialogListener {
         void onAddNewExpense(Product newProduct);
 
         void onCloseNewExpenseDialog();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -40,32 +49,7 @@ public class AddExpenseDialogFragment extends DialogFragment {
 
         newExpenseNameInput = rootView.findViewById(R.id.new_expense_name);
         newExpensePriceInput = rootView.findViewById(R.id.new_expense_price);
-        ImageButton closeButton = rootView.findViewById(R.id.button_close);
-        Button saveButton = rootView.findViewById(R.id.button_save_expense);
 
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!newExpenseNameInput.getText().toString().isEmpty() || !newExpensePriceInput.getText().toString().isEmpty()) {
-                    showDiscardWarning();
-                } else {
-                    dismiss();
-                }
-            }
-        });
-
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String price = newExpensePriceInput.getText().toString();
-                String name =newExpenseNameInput.getText().toString();
-                if (createExpense(price, name)) {
-                    // Notify the listener that a new task has to be added
-                    listener.onAddNewExpense(newExpense);
-                    dismiss();
-                }
-            }
-        });
         return rootView;
     }
 
@@ -77,7 +61,36 @@ public class AddExpenseDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    public void setListener(ExpensesActivity parent) {
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_save, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (!newExpenseNameInput.getText().toString().isEmpty() || !newExpensePriceInput.getText().toString().isEmpty()) {
+                    showDiscardWarning();
+                } else {
+                    dismiss();
+                }
+                return true;
+
+            case R.id.action_save:
+                String price = newExpensePriceInput.getText().toString();
+                String name = newExpenseNameInput.getText().toString();
+                if (createExpense(price, name)) {
+                    // Notify the listener that a new task has to be added
+                    listener.onAddNewExpense(newExpense);
+                    dismiss();
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void setListener(ExpensesFragment parent) {
         listener = (NewExpenseDialogListener) parent;
     }
 

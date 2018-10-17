@@ -67,7 +67,7 @@
     <string name="complete_account">Complete account</string>
     <string name="account_updated">User information updated.</string>
     <string name="account_updated_failed">Failed to update user information.</string>
-    <string name="invite">Invite</string>
+    <string name="invite_to_household">Invite to household</string>
     <string name="invite_user">Invite user</string>
     <string name="invite_code_message">The invitation code for this household is:</string>
     <string name="renew_code">Renew code</string>
@@ -81,7 +81,7 @@
     <string name="new_household">New Household</string>
     <string name="join_household_failed">Failed to join household.</string>
     <string name="create_household_failed">Failed to create household.</string>
-    <string name="leave">Leave</string>
+    <string name="leave_household">Leave household</string>
     <string name="leave_household_message">Are you sure you want to leave this household?</string>
     <string name="leave_household_failed">Failed to leave household.</string>
     <string name="to_do_list_empty">It looks like there are no tasks!</string>
@@ -96,4 +96,8 @@
     <string name="action_removed_product">Removed product</string>
     <string name="action_added_product">Added product</string>
     <string name="change_info">%s - %s</string>
+    <string name="home">Home</string>
+    <string name="household_feed">Household feed</string>
+    <string name="household_members">Household members</string>
+    <string name="no_data_available">No data available.</string>
 </resources>

@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Arrays;
 import java.util.List;
 
+import allurosi.housebuddy.R;
 import allurosi.housebuddy.householdmanager.HouseholdManagerActivity;
 
 public class LogInActivity extends AppCompatActivity {
@@ -25,6 +26,7 @@ public class LogInActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 1;
     public static final String USER_ID = "userId";
     public static final String USER_EMAIL = "userEmail";
+    public static final String FULL_NAME = "full_name";
 
     private FirebaseAuth mAuth;
 
@@ -40,9 +42,6 @@ public class LogInActivity extends AppCompatActivity {
             new AuthUI.IdpConfig.GoogleBuilder().build(),
             new AuthUI.IdpConfig.FacebookBuilder().build());
 
-
-
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,16 +51,17 @@ public class LogInActivity extends AppCompatActivity {
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
-//                        .setLogo(R.drawable.my_great_logo)      // Set logo drawable
+                        .setLogo(R.drawable.logo2)                // Set logo drawable
 //                        .setTheme(R.style.MySuperAppTheme)      // Set theme
                         .build(),
                 RC_SIGN_IN);
     }
 
-    private void enterManager(String userId, String userEmail) {
+    private void enterManager(String userId, String userEmail, String fullName) {
         Intent intent = new Intent(this, HouseholdManagerActivity.class);
         intent.putExtra(USER_ID, userId);
         intent.putExtra(USER_EMAIL, userEmail);
+        intent.putExtra(FULL_NAME, fullName);
         startActivity(intent);
     }
 
@@ -79,9 +79,10 @@ public class LogInActivity extends AppCompatActivity {
 
                 String userId = user.getUid();
                 String userEmail = user.getEmail();
+                String fullName = user.getDisplayName();
 
-                enterManager(userId, userEmail);
-                saveUserInfo(userId, userEmail);
+                enterManager(userId, userEmail, fullName);
+                saveUserInfo(userId, userEmail, fullName);
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
@@ -91,13 +92,14 @@ public class LogInActivity extends AppCompatActivity {
         }
     }
 
-    private void saveUserInfo(String userId, String userEmail) {
+    private void saveUserInfo(String userId, String userEmail, String fullName) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         // Save the user information to device storage
         editor.putString(USER_ID, userId);
         editor.putString(USER_EMAIL, userEmail);
+        editor.putString(FULL_NAME, fullName);
         editor.apply();
     }
 
