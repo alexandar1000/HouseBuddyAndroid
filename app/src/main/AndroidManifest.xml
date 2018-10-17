@@ -28,7 +28,6 @@
             android:name=".householdmanager.HouseholdManagerActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".shoppingList.ShoppingListActivity" />
 
         <!-- This first line of the following metadata might cause some errors in the future. It was a suggested solution because of a conflict about the facebook_app_id -->
         <!-- tools:replace="android:value" -->
