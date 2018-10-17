@@ -151,6 +151,7 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
         // Add menu button to toolbar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setHomeAsUpIndicator(drawableId);
     }
 
@@ -419,6 +420,10 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
                         startActivity(intent);
                     }
                 });
+
+        // Reset stored values on log out
+        storeHousehold("");
+        mSharedPreferences.edit().putString(HOUSEHOLD_NAME, "").apply();
     }
 
     private void leaveHousehold() {
