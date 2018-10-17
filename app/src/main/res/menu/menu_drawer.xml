@@ -13,6 +13,10 @@
         <item
             android:id="@+id/nav_expense_tracker"
             android:title="@string/expense_tracker" />
+
+        <item
+            android:id="@+id/nav_shopping_list"
+            android:title="@string/shopping_list" />
     </group>
 
     <group

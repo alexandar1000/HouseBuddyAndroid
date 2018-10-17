@@ -45,6 +45,7 @@ import java.util.Map;
 import allurosi.housebuddy.R;
 import allurosi.housebuddy.authentication.LogInActivity;
 import allurosi.housebuddy.expensetracker.ExpensesFragment;
+import allurosi.housebuddy.shoppingList.ShoppingListFragment;
 import allurosi.housebuddy.todolist.ToDoListFragment;
 
 import static allurosi.housebuddy.authentication.LogInActivity.FULL_NAME;
@@ -195,6 +196,9 @@ public class HouseholdManagerActivity extends AppCompatActivity implements NewUs
                 break;
             case R.id.nav_expense_tracker:
                 fragmentClass = ExpensesFragment.class;
+                break;
+            case R.id.nav_shopping_list:
+                fragmentClass = ShoppingListFragment.class;
                 break;
             case R.id.button_invite:
                 fragmentClass = InviteUserDialogFragment.class;
