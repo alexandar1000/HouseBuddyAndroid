@@ -105,4 +105,5 @@
     <string name="household_feed">Household feed</string>
     <string name="household_members">Household members</string>
     <string name="no_data_available">No data available.</string>
+    <string name="action_edited_task">Edited task</string>
 </resources>

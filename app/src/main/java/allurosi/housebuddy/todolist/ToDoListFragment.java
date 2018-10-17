@@ -286,7 +286,12 @@ public class ToDoListFragment extends Fragment implements AddTaskDialogFragment.
     public void onEditTask(Task newTask, Task originalTask) {
         // Replace old task in database
         // TODO: do we want to log editing of tasks?
-        mToDoListRef.document(originalTask.getTaskId()).set(newTask).addOnFailureListener(new OnFailureListener() {
+        mToDoListRef.document(originalTask.getTaskId()).set(newTask).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                logChange(R.string.action_edited_task);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(LOG_NAME, "Failed to edit task: " + e);
