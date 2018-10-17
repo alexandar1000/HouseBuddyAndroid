@@ -28,6 +28,8 @@
             android:id="@+id/change_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minEms="0"
+            android:maxEms="16"
             android:text="FirstName LastName - Added task" />
     </LinearLayout>
 
