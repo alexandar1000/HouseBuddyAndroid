@@ -147,7 +147,7 @@ public class HouseholdHomeFragment extends Fragment {
                     String lastName = documentSnapshot.getString(FIELD_LAST_NAME);
 
                     mMemberNames.add(0, firstName + " " + lastName);
-                    mMemberListAdapter.notifyItemInserted(0);
+                    mMemberListAdapter.notifyDataSetChanged();
                 }
             }
         });
