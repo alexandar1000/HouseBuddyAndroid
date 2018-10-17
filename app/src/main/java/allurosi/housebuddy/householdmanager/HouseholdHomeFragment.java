@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -85,6 +86,10 @@ public class HouseholdHomeFragment extends Fragment {
         } else {
             mHouseholdNameTextView.setText(householdName);
         }
+
+        // Style recyclerView
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL);
+        householdFeed.addItemDecoration(dividerItemDecoration);
 
         mMemberListAdapter = new HouseholdMembersAdapter(mContext, mMemberNames);
         householdMembers.setAdapter(mMemberListAdapter);
