@@ -28,7 +28,7 @@ public class LogInActivity extends AppCompatActivity {
     public static final String USER_EMAIL = "userEmail";
     public static final String FULL_NAME = "full_name";
 
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();;
 
     private EditText mEmailInput;
     private EditText mPasswordInput;
@@ -101,6 +101,20 @@ public class LogInActivity extends AppCompatActivity {
         editor.putString(USER_EMAIL, userEmail);
         editor.putString(FULL_NAME, fullName);
         editor.apply();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser user = mAuth.getCurrentUser();
+
+        String userId = user.getUid();
+        String userEmail = user.getEmail();
+        String fullName = user.getDisplayName();
+
+        enterManager(userId, userEmail, fullName);
+        saveUserInfo(userId, userEmail, fullName);
     }
 
     @Override
