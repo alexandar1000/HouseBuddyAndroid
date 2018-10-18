@@ -20,7 +20,8 @@ public class AddShoppingListItemDialogFragment extends DialogFragment {
     private Button mCancelAddSItemBtn;
 
     public interface AddShoppingItemDialogueListener {
-        void onFinishEditDialog(ShoppingItem shoppingItem);
+        void onFinishAddDialog(ShoppingItem shoppingItem);
+        void onFinishEditDialog(ShoppingItem shoppingItem, int position);
     }
 
 
@@ -30,6 +31,17 @@ public class AddShoppingListItemDialogFragment extends DialogFragment {
         AddShoppingListItemDialogFragment fragment = new AddShoppingListItemDialogFragment();
         Bundle args = new Bundle();
         args.putString("title", title);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static AddShoppingListItemDialogFragment newInstance(String title, String name, String info, int position) {
+        AddShoppingListItemDialogFragment fragment = new AddShoppingListItemDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("title", title);
+        args.putString("name", name);
+        args.putString("info", info);
+        args.putString("position", Integer.toString(position));
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,6 +65,11 @@ public class AddShoppingListItemDialogFragment extends DialogFragment {
         mCancelAddSItemBtn = (Button) view.findViewById(R.id.cancelAddingShoppingItemBtn);
         // Fetch arguments from bundle and set title
 
+        if (getArguments().size() > 1) {
+            mEditName.setText(getArguments().getString("name"));
+            mEditInfo.setText(getArguments().getString("info"));
+        }
+
         mCancelAddSItemBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,20 +82,16 @@ public class AddShoppingListItemDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 AddShoppingItemDialogueListener listener = (AddShoppingItemDialogueListener) getActivity();
                 ShoppingItem shoppingItem = new ShoppingItem(mEditName.getText().toString(), mEditInfo.getText().toString());
-                listener.onFinishEditDialog(shoppingItem);
+                if (getArguments().size() > 1) {
+                    listener.onFinishEditDialog(shoppingItem, Integer.parseInt(getArguments().getString("position")));
+                } else {
+                    listener.onFinishAddDialog(shoppingItem);
+                }
                 dismiss();
             }
         });
 
         String title = getArguments().getString("title", "Enter Name");
         getDialog().setTitle(title);
-    }
-
-    public EditText getmEditName() {
-        return mEditName;
-    }
-
-    public EditText getmEditInfo() {
-        return mEditInfo;
     }
 }

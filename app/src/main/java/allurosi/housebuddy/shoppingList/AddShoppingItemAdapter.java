@@ -16,12 +16,18 @@ import allurosi.housebuddy.R;
 public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItemAdapter.ShoppingItemViewHolder> {
 
     private ArrayList<ShoppingItem> mItems;
+    private ShoppingListActivity shoppingListActivity;
+
+    public interface EditShoppingListItemListener {
+        void editShoppingListItem(String name, String info, int position, int operation);
+    }
+
 
     public static class ShoppingItemViewHolder extends RecyclerView.ViewHolder {
         public final TextView mTextView;
         public final ImageButton mImageButton;
 
-        public ShoppingItemViewHolder (View v) {
+        public ShoppingItemViewHolder (View v, final ShoppingListActivity shoppingListActivity) {
             super(v);
             mTextView = (TextView) v.findViewById(R.id.singleItemShoppingListText);
             mImageButton = (ImageButton) v.findViewById(R.id.shoppingListCheckButton);
@@ -32,6 +38,14 @@ public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItem
                     mTextView.setPaintFlags(mTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 }
             });
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditShoppingListItemListener listener = (EditShoppingListItemListener) shoppingListActivity;
+                    listener.editShoppingListItem("some", "thing", getAdapterPosition(), 1);
+                }
+            });
         }
 
         public TextView getmTextView() {
@@ -39,8 +53,9 @@ public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItem
         }
     }
 
-    public AddShoppingItemAdapter(ArrayList<ShoppingItem> items) {
-        mItems = items;
+    public AddShoppingItemAdapter(ArrayList<ShoppingItem> items, ShoppingListActivity shoppingListActivity) {
+        this.mItems = items;
+        this.shoppingListActivity = shoppingListActivity;
     }
 
     @NonNull
@@ -48,21 +63,19 @@ public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItem
     public AddShoppingItemAdapter.ShoppingItemViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.shopping_list_item, viewGroup, false);
-        return new ShoppingItemViewHolder(v);
+        return new ShoppingItemViewHolder(v, shoppingListActivity);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ShoppingItemViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ShoppingItemViewHolder holder, final int position) {
         holder.getmTextView().setText(mItems.get(position).getName());
     }
+
 
     @Override
     public int getItemCount() {
         return mItems.size();
     }
 
-//    @Override
-//    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-//        super.onAttachedToRecyclerView(recyclerView);
-//    }
+
 }

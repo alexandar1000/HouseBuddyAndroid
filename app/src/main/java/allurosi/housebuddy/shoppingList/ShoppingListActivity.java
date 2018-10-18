@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import allurosi.housebuddy.R;
 
-public class ShoppingListActivity extends AppCompatActivity implements AddShoppingListItemDialogFragment.AddShoppingItemDialogueListener {
+public class ShoppingListActivity extends AppCompatActivity implements AddShoppingListItemDialogFragment.AddShoppingItemDialogueListener, AddShoppingItemAdapter.EditShoppingListItemListener {
 
     private ArrayList<ShoppingItem> shoppingItems = new ArrayList<>();
 
@@ -45,42 +45,42 @@ public class ShoppingListActivity extends AppCompatActivity implements AddShoppi
 
 
 
-        mAdapter = new AddShoppingItemAdapter(shoppingItems);
+        mAdapter = new AddShoppingItemAdapter(shoppingItems, this);
         mRecyclerView.setAdapter(mAdapter);
 
         mNewItemBtn = findViewById(R.id.add_shopping_list_item);
-
-
-
-
-        mNewItemBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addNewItem();
-            }
-        });
     }
 
-    public void addNewItem() {
+    public void addNewItem(View view) {
         FragmentManager fm = getSupportFragmentManager();
         AddShoppingListItemDialogFragment addShoppingListItemDialogFragment = AddShoppingListItemDialogFragment.newInstance("Add Item");
         addShoppingListItemDialogFragment.show(fm, "new_shopping_list_item");
     }
 
-    public void editExistingItem(String name, String info) {
+    public void editExistingItem(String name, String info, int position) {
         FragmentManager fm = getSupportFragmentManager();
-        AddShoppingListItemDialogFragment addShoppingListItemDialogFragment = AddShoppingListItemDialogFragment.newInstance("Edit Item Item");
-        addShoppingListItemDialogFragment.getmEditName().setText(name);
-        addShoppingListItemDialogFragment.getmEditInfo().setText(info);
+        AddShoppingListItemDialogFragment addShoppingListItemDialogFragment = AddShoppingListItemDialogFragment.newInstance("Edit Item Item", name, info, position);
         addShoppingListItemDialogFragment.show(fm, "new_shopping_list_item");
-
     }
 
+
     @Override
-    public void onFinishEditDialog(ShoppingItem shoppingItem) {
+    public void onFinishAddDialog(ShoppingItem shoppingItem) {
         shoppingItems.add(shoppingItem);
+        mAdapter.notifyDataSetChanged();
 //      TODO: add the item to the database
     }
 
+    @Override
+    public void onFinishEditDialog(ShoppingItem shoppingItem, int position) {
+        shoppingItems.get(position).setName(shoppingItem.getName());
+        shoppingItems.get(position).setInfo(shoppingItem.getInfo());
+        mAdapter.notifyDataSetChanged();
+//      TODO: edit item in the database
+    }
 
+    @Override
+    public void editShoppingListItem(String name, String info, int position, int operation) {
+        editExistingItem(name, info, position);
+    }
 }
