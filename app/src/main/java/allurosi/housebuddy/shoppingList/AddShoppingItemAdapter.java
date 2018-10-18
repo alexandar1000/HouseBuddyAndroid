@@ -19,7 +19,7 @@ public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItem
     private ShoppingListActivity shoppingListActivity;
 
     public interface EditShoppingListItemListener {
-        void editShoppingListItem(String name, String info, int position, int operation);
+        void editShoppingListItem(String name, String info, int position);
     }
 
 
@@ -43,7 +43,9 @@ public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItem
                 @Override
                 public void onClick(View v) {
                     EditShoppingListItemListener listener = (EditShoppingListItemListener) shoppingListActivity;
-                    listener.editShoppingListItem("some", "thing", getAdapterPosition(), 1);
+                    String name = shoppingListActivity.getShoppingItems().get(getAdapterPosition()).getName();
+                    String info = shoppingListActivity.getShoppingItems().get(getAdapterPosition()).getInfo();
+                    listener.editShoppingListItem(name, info, getAdapterPosition());
                 }
             });
         }

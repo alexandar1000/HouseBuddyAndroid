@@ -4,6 +4,11 @@ public class ShoppingItem {
     private String name;
     private String info;
     private boolean done;
+    private String shoppingItemId;
+
+    public ShoppingItem(){
+
+    }
 
     public ShoppingItem(String name, String info) {
         this.name = name;
@@ -15,6 +20,13 @@ public class ShoppingItem {
         this.name = name;
         this.info = info;
         this.done = done;
+    }
+
+    public ShoppingItem(ShoppingItem shoppingItem) {
+        this.name = shoppingItem.getName();
+        this.info = shoppingItem.getInfo();
+        this.done = shoppingItem.isDone();
+        this.shoppingItemId = shoppingItem.getShoppingItemId();
     }
 
     public String getName() {
@@ -39,5 +51,13 @@ public class ShoppingItem {
 
     public boolean isDone() {
         return done;
+    }
+
+    public String getShoppingItemId() {
+        return shoppingItemId;
+    }
+
+    public void setShoppingItemId(String shoppingItemId) {
+        this.shoppingItemId = shoppingItemId;
     }
 }
