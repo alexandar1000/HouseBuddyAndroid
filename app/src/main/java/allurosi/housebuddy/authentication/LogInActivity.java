@@ -119,6 +119,7 @@ public class LogInActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        Log.d(TAG, "onBackPressed()");
         // Empty to catch back presses to MainActivity from the login screen
     }
 
