@@ -34,7 +34,7 @@ public class EditTaskFragment extends Fragment {
     private EditTaskFragmentListener listener;
 
     public interface EditTaskFragmentListener {
-        void onEditTask(Task newTask, Task originalTask);
+        void onEditTask(Task newTask);
     }
 
     @Override
@@ -73,33 +73,29 @@ public class EditTaskFragment extends Fragment {
         String newName = textTaskName.getText().toString();
         String newDesc = textTaskDesc.getText().toString();
 
-        // If task didn't change we do nothing
-        if (mTask.equals(originalTask)) {
-            getFragmentManager().popBackStack();
-            return true;
+        if (mTask != null) {
+            // Update task
+            mTask.setTaskName(newName);
+            mTask.setTaskDesc(newDesc);
+
+            // If task didn't change we do nothing
+            if (mTask.equals(originalTask)) {
+                getFragmentManager().popBackStack();
+                return true;
+            }
         }
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                mTask.setTaskName(newName);
-                if (!newDesc.isEmpty()) {
-                    mTask.setTaskDesc(newDesc);
-                }
                 showDiscardWarning();
                 return true;
 
             case R.id.action_save:
-                // Only change the name and description if they are not empty
+                // Check if new name is empty
                 if (newName.isEmpty()) {
                     textTaskName.setError(getString(R.string.enter_name_alert));
                 } else {
-                    mTask.setTaskName(newName);
-
-                    if (!newDesc.isEmpty()) {
-                        mTask.setTaskDesc(newDesc);
-                    }
-
-                    listener.onEditTask(mTask, originalTask);
+                    listener.onEditTask(mTask);
                     getFragmentManager().popBackStack();
                 }
                 return true;

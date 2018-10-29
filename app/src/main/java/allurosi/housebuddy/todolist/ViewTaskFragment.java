@@ -67,12 +67,7 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
-
-        // Get passed task
-        Bundle bundle = getArguments();
-        mTask = bundle.getParcelable(TASK_MESSAGE);
     }
 
     @Nullable
@@ -82,6 +77,10 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
 
         mTextTaskDesc = rootView.findViewById(R.id.view_task_description);
 
+        // Get passed task
+        Bundle bundle = getArguments();
+        mTask = bundle.getParcelable(TASK_MESSAGE);
+
         // Set values in layout
         mTextTaskDesc.setText(mTask.getTaskDesc());
 
@@ -89,10 +88,7 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
     }
 
     @Override
-    public void onEditTask(Task newTask, Task originalTask) {
-        mActionBar.setTitle(newTask.getTaskName());
-        mTask = new Task(newTask);
-
+    public void onEditTask(Task newTask) {
         // Replace task with edited task in database
         mTaskRef.set(newTask).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -122,11 +118,10 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
                 return true;
 
             case R.id.action_complete:
-                Task originalTask = new Task(mTask);
                 mTask.setCompleted(true);
 
                 // Replace task with completed (edited) task
-                onEditTask(mTask, originalTask);
+                onEditTask(mTask);
 
                 Toast.makeText(mContext, getResources().getQuantityString(R.plurals.task_marked_completed, 1), Toast.LENGTH_SHORT).show();
                 listener.onCloseViewTask();
@@ -193,15 +188,21 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
 
         mTaskRef = householdRef.collection(COLLECTION_PATH_TO_DO_LIST).document(mTask.getTaskId());
 
-        // Add listener which updates the todoList if another user changes it
+        // Add listener which updates the task if another user changes it
         // Is called once when addSnapshotListener is called
         mListenerRegistration = mTaskRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable DocumentSnapshot documentSnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
                 if (documentSnapshot != null) {
                     Task newTask = documentSnapshot.toObject(Task.class);
-                    mActionBar.setTitle(newTask.getTaskName());
-                    mTextTaskDesc.setText(newTask.getTaskDesc());
+                    if (newTask != null) {
+                        mActionBar.setTitle(newTask.getTaskName());
+                        mTextTaskDesc.setText(newTask.getTaskDesc());
+
+                        // Task in database doesn't have id, so add it
+                        newTask.setTaskId(mTask.getTaskId());
+                        mTask = new Task(newTask);
+                    }
                 }
             }
         });
