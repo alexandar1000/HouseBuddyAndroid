@@ -91,6 +91,9 @@ public class ViewShoppingListItemFragment extends Fragment implements EditShoppi
 
         updateText(shoppingItem.getName(), shoppingItem.getInfo());
 
+        System.out.println(mViewName.getText().toString());
+        System.out.println(mViewInfo.getText().toString());
+
         Toast.makeText(mContext, getString(R.string.saved_shopping_item), Toast.LENGTH_SHORT).show();
     }
 

@@ -107,7 +107,10 @@ public class ShoppingListFragment extends Fragment implements AddShoppingListIte
     @Override
     public void onEditShoppingItem(ShoppingItem editedItem, int position, ViewShoppingListItemFragment fragment) {
         shoppingItems.set(position, editedItem);
-
+        for (ShoppingItem item :shoppingItems) {
+            System.out.println(item.getName());
+        }
+        mAdapter.notifyDataSetChanged();
         //TODO: Update in the DB
     }
 
