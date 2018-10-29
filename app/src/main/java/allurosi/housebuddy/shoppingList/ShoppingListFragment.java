@@ -55,7 +55,7 @@ public class ShoppingListFragment extends Fragment implements AddShoppingListIte
         /*
          * Just for testing purposes, delete afterwards
          * */
-        shoppingItems.clear();
+//        shoppingItems.clear();
         shoppingItems.add(new ShoppingItem("sponge", "for dishes"));
         shoppingItems.add(new ShoppingItem("dish liquid", "for dishes"));
         shoppingItems.add(new ShoppingItem("food", "for everyone"));

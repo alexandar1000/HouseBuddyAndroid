@@ -32,6 +32,9 @@ public class ViewShoppingListItemFragment extends Fragment implements EditShoppi
     private Context mContext;
     private ActionBar mActionBar;
 
+    private String name;
+    private String info;
+
     private Integer position;
 
     private View view;
@@ -63,6 +66,13 @@ public class ViewShoppingListItemFragment extends Fragment implements EditShoppi
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        //populate the corresponding values
+        if (getArguments() != null && getArguments().size() > 1) {
+            this.name = getArguments().get("name").toString();
+            this.info = getArguments().get("info").toString();
+        }
+
     }
 
     @Nullable
@@ -76,12 +86,8 @@ public class ViewShoppingListItemFragment extends Fragment implements EditShoppi
 
         this.position = Integer.parseInt((String) getArguments().get("position"));
 
-        //populate the corresponding values
-        if (getArguments() != null && getArguments().size() > 1) {
-            mViewName.setText(getArguments().getString("name"));
-            mViewInfo.setText(getArguments().getString("info"));
-        }
-
+        mViewName.setText(name);
+        mViewInfo.setText(info);
         return rootView;
     }
 
@@ -98,6 +104,8 @@ public class ViewShoppingListItemFragment extends Fragment implements EditShoppi
     }
 
     private void updateText(String name, String info) {
+        this.name = name;
+        this.info = info;
         mViewName.setText(name);
         mViewInfo.setText(info);
     }
@@ -106,6 +114,24 @@ public class ViewShoppingListItemFragment extends Fragment implements EditShoppi
     public void onCloseEditShoppingListItemDialog() {
 
     }
+
+//    @Override
+//    public void setUserVisibleHint(boolean isVisibleToUser) {
+//
+//        super.setUserVisibleHint(
+//                isVisibleToUser);
+//
+//        // Refresh tab data:
+//
+//        if (getFragmentManager() != null) {
+//
+//            getFragmentManager()
+//                    .beginTransaction()
+//                    .detach(this)
+//                    .attach(this)
+//                    .commit();
+//        }
+//    }
 
 
     @Override
@@ -128,7 +154,7 @@ public class ViewShoppingListItemFragment extends Fragment implements EditShoppi
                 return true;
 
             case R.id.action_edit_shopping_item:
-                EditShoppingListItemDialogFragment editShoppingListItemDialogFragment = EditShoppingListItemDialogFragment.newInstance("Edit Item", mViewName.getText().toString(), mViewInfo.getText().toString(), position);
+                EditShoppingListItemDialogFragment editShoppingListItemDialogFragment = EditShoppingListItemDialogFragment.newInstance("Edit Item", name, info, position);
                 editShoppingListItemDialogFragment.setListener(this);
 
                 mActionBar.setTitle("Edit Shopping Item");
