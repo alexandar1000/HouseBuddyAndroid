@@ -3,9 +3,10 @@ package allurosi.housebuddy.todolist;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,30 +25,41 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+
 import allurosi.housebuddy.R;
 
+import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.HOUSEHOLD_PATH;
+import static allurosi.housebuddy.todolist.ToDoListFragment.COLLECTION_PATH_TO_DO_LIST;
+import static allurosi.housebuddy.todolist.ToDoListFragment.LOG_NAME;
 import static allurosi.housebuddy.todolist.ToDoListFragment.TASK_MESSAGE;
 
 public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditTaskFragmentListener {
 
-    public static final String TASK_MESSAGE_ORIGINAL = "OriginalTask";
-
-    public static final int EDIT_TASK = 1;
-
     private Context mContext;
     private ActionBar mActionBar;
+    private TextView mTextTaskDesc;
 
     private Task mTask;
-    private Task originalTask;
-
-    private TextView textTaskDesc;
 
     private ViewTaskFragmentListener listener;
+
+    private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+    private DocumentReference mTaskRef;
+
+    private ListenerRegistration mListenerRegistration;
 
     public interface ViewTaskFragmentListener {
         void onDeleteTask(Task taskToDelete);
 
-        void onEditTask(Task newTask, Task originalTask);
+        void onEditTask();
 
         void onCloseViewTask();
     }
@@ -54,7 +67,12 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
+
+        // Get passed task
+        Bundle bundle = getArguments();
+        mTask = bundle.getParcelable(TASK_MESSAGE);
     }
 
     @Nullable
@@ -62,14 +80,10 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_view_task, container, false);
 
-        textTaskDesc = rootView.findViewById(R.id.view_task_description);
-
-        // Get passed task
-        Bundle bundle = getArguments();
-        mTask = bundle.getParcelable(TASK_MESSAGE);
+        mTextTaskDesc = rootView.findViewById(R.id.view_task_description);
 
         // Set values in layout
-        textTaskDesc.setText(mTask.getTaskDesc());
+        mTextTaskDesc.setText(mTask.getTaskDesc());
 
         return rootView;
     }
@@ -77,12 +91,22 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
     @Override
     public void onEditTask(Task newTask, Task originalTask) {
         mActionBar.setTitle(newTask.getTaskName());
-        textTaskDesc.setText(newTask.getTaskDesc());
+        mTask = new Task(newTask);
 
-        // Replace task with edited task
-        listener.onEditTask(newTask, originalTask);
-
-        Toast.makeText(mContext, getString(R.string.task_saved), Toast.LENGTH_SHORT).show();
+        // Replace task with edited task in database
+        mTaskRef.set(newTask).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                listener.onEditTask();
+                Toast.makeText(mContext, getString(R.string.task_saved), Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(LOG_NAME, "View Task: failed to edit task: " + e);
+                Toast.makeText(mContext, getString(R.string.edit_task_failed), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
@@ -98,11 +122,11 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
                 return true;
 
             case R.id.action_complete:
-                originalTask = new Task(mTask);
+                Task originalTask = new Task(mTask);
                 mTask.setCompleted(true);
 
                 // Replace task with completed (edited) task
-                listener.onEditTask(mTask, originalTask);
+                onEditTask(mTask, originalTask);
 
                 Toast.makeText(mContext, getResources().getQuantityString(R.plurals.task_marked_completed, 1), Toast.LENGTH_SHORT).show();
                 listener.onCloseViewTask();
@@ -156,6 +180,39 @@ public class ViewTaskFragment extends Fragment implements EditTaskFragment.EditT
 
     public void setListener(ToDoListFragment parent) {
         listener = (ViewTaskFragmentListener) parent;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Get stored household path
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        String householdPath = sharedPreferences.getString(HOUSEHOLD_PATH, "");
+        DocumentReference householdRef = mFireStore.document(householdPath);
+
+        mTaskRef = householdRef.collection(COLLECTION_PATH_TO_DO_LIST).document(mTask.getTaskId());
+
+        // Add listener which updates the todoList if another user changes it
+        // Is called once when addSnapshotListener is called
+        mListenerRegistration = mTaskRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable DocumentSnapshot documentSnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if (documentSnapshot != null) {
+                    Task newTask = documentSnapshot.toObject(Task.class);
+                    mActionBar.setTitle(newTask.getTaskName());
+                    mTextTaskDesc.setText(newTask.getTaskDesc());
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Detach listener when it's no longer needed
+        mListenerRegistration.remove();
     }
 
     // Deprecated method to support lower APIs

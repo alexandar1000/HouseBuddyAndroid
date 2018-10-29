@@ -73,18 +73,19 @@ public class EditTaskFragment extends Fragment {
         String newName = textTaskName.getText().toString();
         String newDesc = textTaskDesc.getText().toString();
 
+        // If task didn't change we do nothing
+        if (mTask.equals(originalTask)) {
+            getFragmentManager().popBackStack();
+            return true;
+        }
+
         switch (item.getItemId()) {
             case android.R.id.home:
                 mTask.setTaskName(newName);
                 if (!newDesc.isEmpty()) {
                     mTask.setTaskDesc(newDesc);
                 }
-
-                if (mTask.equals(originalTask)) {
-                    getFragmentManager().popBackStack();
-                } else {
-                    showDiscardWarning();
-                }
+                showDiscardWarning();
                 return true;
 
             case R.id.action_save:

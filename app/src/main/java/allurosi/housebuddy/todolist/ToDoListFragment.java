@@ -62,7 +62,7 @@ import static allurosi.housebuddy.householdmanager.HouseholdManagerActivity.USER
 public class ToDoListFragment extends Fragment implements AddTaskDialogFragment.NewTaskDialogListener,
         ViewTaskFragment.ViewTaskFragmentListener, Loggable {
 
-    private static final String LOG_NAME = "ToDoListFragment";
+    public static final String LOG_NAME = "ToDoListFragment";
     public static final String TASK_MESSAGE = "Task";
 
     public static final String COLLECTION_PATH_TO_DO_LIST = "to_do_list";
@@ -283,21 +283,8 @@ public class ToDoListFragment extends Fragment implements AddTaskDialogFragment.
     }
 
     @Override
-    public void onEditTask(Task newTask, Task originalTask) {
-        // Replace old task in database
-        // TODO: do we want to log editing of tasks?
-        mToDoListRef.document(originalTask.getTaskId()).set(newTask).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                logChange(R.string.action_edited_task);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(LOG_NAME, "Failed to edit task: " + e);
-                Toast.makeText(mContext, mContext.getResources().getString(R.string.edit_task_failed), Toast.LENGTH_LONG).show();
-            }
-        });
+    public void onEditTask() {
+        logChange(R.string.action_edited_task);
     }
 
     @Override
