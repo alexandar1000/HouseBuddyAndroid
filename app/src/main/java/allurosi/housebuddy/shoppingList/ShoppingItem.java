@@ -9,7 +9,7 @@ public class ShoppingItem {
     public ShoppingItem(String name, String info) {
         this.name = name;
         this.info = info;
-        this.done = true;
+        this.done = false;
     }
 
     public ShoppingItem(String name, String info, boolean done) {

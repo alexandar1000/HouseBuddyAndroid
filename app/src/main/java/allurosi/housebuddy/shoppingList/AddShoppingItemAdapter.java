@@ -16,12 +16,19 @@ import allurosi.housebuddy.R;
 public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItemAdapter.ShoppingItemViewHolder> {
 
     private ArrayList<ShoppingItem> mItems;
+    private ShoppingListFragment shoppingListFragment;
+
+    public interface ShowShoppingListItemListener {
+        void showShoppingListItem(String name, String info, int position);
+    }
 
     public static class ShoppingItemViewHolder extends RecyclerView.ViewHolder {
         public final TextView mTextView;
         public final ImageButton mImageButton;
 
-        public ShoppingItemViewHolder (View v) {
+
+
+        public ShoppingItemViewHolder (View v, final ShoppingListFragment shoppingListFragment) {
             super(v);
             mTextView = (TextView) v.findViewById(R.id.singleItemShoppingListText);
             mImageButton = (ImageButton) v.findViewById(R.id.shoppingListCheckButton);
@@ -32,6 +39,16 @@ public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItem
                     mTextView.setPaintFlags(mTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 }
             });
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ShowShoppingListItemListener listener = (ShowShoppingListItemListener) shoppingListFragment;
+                    String name = shoppingListFragment.getShoppingItems().get(getAdapterPosition()).getName();
+                    String info = shoppingListFragment.getShoppingItems().get(getAdapterPosition()).getInfo();
+                    listener.showShoppingListItem(name, info, getAdapterPosition());
+                }
+            });
         }
 
         public TextView getmTextView() {
@@ -39,8 +56,9 @@ public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItem
         }
     }
 
-    public AddShoppingItemAdapter(ArrayList<ShoppingItem> items) {
+    public AddShoppingItemAdapter(ArrayList<ShoppingItem> items, ShoppingListFragment shoppingListFragment) {
         mItems = items;
+        this.shoppingListFragment = shoppingListFragment;
     }
 
     @NonNull
@@ -48,7 +66,7 @@ public class AddShoppingItemAdapter extends RecyclerView.Adapter<AddShoppingItem
     public AddShoppingItemAdapter.ShoppingItemViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.shopping_list_item, viewGroup, false);
-        return new ShoppingItemViewHolder(v);
+        return new ShoppingItemViewHolder(v, shoppingListFragment);
     }
 
     @Override

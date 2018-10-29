@@ -22,7 +22,8 @@ import java.util.ArrayList;
 
 import allurosi.housebuddy.R;
 
-public class ShoppingListFragment extends Fragment implements AddShoppingListItemDialogFragment.AddShoppingItemDialogListener {
+public class ShoppingListFragment extends Fragment implements AddShoppingListItemDialogFragment.AddShoppingListItemListener,
+        AddShoppingItemAdapter.ShowShoppingListItemListener, ViewShoppingListItemFragment.ViewShoppingListItemFragmentListener {
 
     private Context mContext;
     private ActionBar mActionBar;
@@ -60,7 +61,7 @@ public class ShoppingListFragment extends Fragment implements AddShoppingListIte
         shoppingItems.add(new ShoppingItem("food", "for everyone"));
 
 
-        mAdapter = new AddShoppingItemAdapter(shoppingItems);
+        mAdapter = new AddShoppingItemAdapter(shoppingItems, this);
         mRecyclerView.setAdapter(mAdapter);
 
         mNewItemBtn = rootView.findViewById(R.id.add_shopping_list_item);
@@ -87,34 +88,55 @@ public class ShoppingListFragment extends Fragment implements AddShoppingListIte
         transaction.replace(R.id.flContent, addShoppingListItemDialogFragment).addToBackStack(null).commit();
     }
 
-    public void editExistingItem(String name, String info) {
-        AddShoppingListItemDialogFragment addShoppingListItemDialogFragment = new AddShoppingListItemDialogFragment();
-        addShoppingListItemDialogFragment.getEditName().setText(name);
-        addShoppingListItemDialogFragment.getEditInfo().setText(info);
-        addShoppingListItemDialogFragment.setListener(this);
-
-        updateActionBar("Edit Item Item", R.drawable.ic_arrow_back_white);
-
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.replace(R.id.flContent, addShoppingListItemDialogFragment).addToBackStack(null).commit();
-    }
-
     private void updateActionBar(String title, int backDrawableId) {
         mActionBar.setTitle(title);
         mActionBar.setHomeAsUpIndicator(backDrawableId);
     }
 
     @Override
-    public void onFinishEditDialog(ShoppingItem shoppingItem) {
+    public void onFinishAddShoppingListItem(ShoppingItem shoppingItem) {
         shoppingItems.add(shoppingItem);
 //      TODO: add the item to the database
     }
 
     @Override
+    public void onDeleteShoppingItem(int itemToDelete) {
+        shoppingItems.remove(itemToDelete);
+    }
+
+    @Override
+    public void onEditShoppingItem(ShoppingItem editedItem, int position, ViewShoppingListItemFragment fragment) {
+        shoppingItems.set(position, editedItem);
+
+        //TODO: Update in the DB
+    }
+
+    @Override
+    public void onCloseViewShoppingItem() {
+        updateActionBar(mContext.getResources().getString(R.string.app_name), R.drawable.ic_menu_white);
+        getFragmentManager().popBackStack();
+    }
+
+    @Override
     public void onCloseNewShoppingItemDialog() {
         updateActionBar(mContext.getResources().getString(R.string.app_name), R.drawable.ic_menu_white);
+    }
+
+    @Override
+    public void showShoppingListItem(String name, String info, int position) {
+        ViewShoppingListItemFragment viewShoppingListItemFragment = ViewShoppingListItemFragment.newInstance("Edit Item Item", name, info, position);
+        viewShoppingListItemFragment.setListener(this);
+
+        updateActionBar("Shopping Item", R.drawable.ic_arrow_back_white);
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        transaction.replace(R.id.flContent, viewShoppingListItemFragment).addToBackStack(null).commit();
+    }
+
+    public ArrayList<ShoppingItem> getShoppingItems() {
+        return shoppingItems;
     }
 
     // Deprecated method to support lower APIs
@@ -131,5 +153,4 @@ public class ShoppingListFragment extends Fragment implements AddShoppingListIte
         mContext = context;
         mActionBar = ((AppCompatActivity) context).getSupportActionBar();
     }
-
 }

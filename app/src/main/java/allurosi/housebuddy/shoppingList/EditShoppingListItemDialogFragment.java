@@ -14,30 +14,22 @@ import android.widget.EditText;
 
 import allurosi.housebuddy.R;
 
-public class AddShoppingListItemDialogFragment extends DialogFragment {
+public class EditShoppingListItemDialogFragment extends DialogFragment {
 
     private EditText mEditName;
     private EditText mEditInfo;
 
-    private AddShoppingListItemListener listener;
+    private EditShoppingListItemListener listener;
 
-    public interface AddShoppingListItemListener {
-        void onFinishAddShoppingListItem(ShoppingItem shoppingItem);
-        void onCloseNewShoppingItemDialog();
+    public interface EditShoppingListItemListener {
+        void onFinishEditShoppingListItem(ShoppingItem shoppingItem);
+        void onCloseEditShoppingListItemDialog();
     }
 
-    public AddShoppingListItemDialogFragment() {}
+    public EditShoppingListItemDialogFragment() {}
 
-    public static AddShoppingListItemDialogFragment newInstance(String title) {
-        AddShoppingListItemDialogFragment fragment = new AddShoppingListItemDialogFragment();
-        Bundle args = new Bundle();
-        args.putString("title", title);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static AddShoppingListItemDialogFragment newInstance(String title, String name, String info, int position) {
-        AddShoppingListItemDialogFragment fragment = new AddShoppingListItemDialogFragment();
+    public static EditShoppingListItemDialogFragment newInstance(String title, String name, String info, int position) {
+        EditShoppingListItemDialogFragment fragment = new EditShoppingListItemDialogFragment();
         Bundle args = new Bundle();
         args.putString("title", title);
         args.putString("name", name);
@@ -95,20 +87,20 @@ public class AddShoppingListItemDialogFragment extends DialogFragment {
 
             case R.id.action_save:
                 ShoppingItem shoppingItem = new ShoppingItem(mEditName.getText().toString(), mEditInfo.getText().toString());
-                listener.onFinishAddShoppingListItem(shoppingItem);
+                listener.onFinishEditShoppingListItem(shoppingItem);
                 dismiss();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void setListener(AddShoppingListItemListener parent) {
-        listener = (ShoppingListFragment) parent;
+    public void setListener(ViewShoppingListItemFragment parent) {
+        listener = (EditShoppingListItemListener) parent;
     }
 
     @Override
     public void dismiss() {
-        listener.onCloseNewShoppingItemDialog();
+        listener.onCloseEditShoppingListItemDialog();
         if (getFragmentManager() != null) {
             getFragmentManager().popBackStack();
         }
