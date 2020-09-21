@@ -36,10 +36,10 @@ public class NewUserDialogFragment extends DialogFragment implements DialogFragm
 
         newFirstNameInput = rootView.findViewById(R.id.new_first_name);
         newLastNameInput = rootView.findViewById(R.id.new_last_name);
-        ImageButton backButton = rootView.findViewById(R.id.button_back);
+        ImageButton closeButton = rootView.findViewById(R.id.button_close);
         Button saveButton = rootView.findViewById(R.id.button_save);
 
-        backButton.setOnClickListener(new View.OnClickListener() {
+        closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!newFirstNameInput.getText().toString().isEmpty() || !newLastNameInput.getText().toString().isEmpty()) {

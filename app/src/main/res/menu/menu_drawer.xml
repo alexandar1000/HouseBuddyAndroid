@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/manager_items"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_activity_feed"
+            android:title="@string/home" />
+        <item
+            android:id="@+id/nav_to_do_list"
+            android:title="@string/to_do_list" />
+        <item
+            android:id="@+id/nav_expense_tracker"
+            android:title="@string/expense_tracker" />
+
+        <item
+            android:id="@+id/nav_shopping_list"
+            android:title="@string/shopping_list" />
+    </group>
+
+    <group
+        android:id="@+id/household_actions"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/button_invite"
+            android:title="@string/invite_to_household" />
+        <item
+            android:id="@+id/button_leave"
+            android:title="@string/leave_household" />
+    </group>
+
+    <group
+        android:id="@+id/log_out"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/button_log_out"
+            android:title="@string/log_out" />
+    </group>
+
+</menu>

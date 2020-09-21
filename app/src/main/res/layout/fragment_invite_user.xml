@@ -9,36 +9,6 @@
     android:focusable="true"
     android:orientation="vertical">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/button_close"
-                android:layout_width="?attr/actionBarSize"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:tint="@android:color/white"
-                app:srcCompat="@drawable/ic_close_white" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="@string/invite_user"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                android:textColor="@android:color/white" />
-
-        </LinearLayout>
-
-    </android.support.design.widget.AppBarLayout>
-
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">

@@ -12,8 +12,7 @@
         android:gravity="center_vertical"
         android:minHeight="?attr/listPreferredItemHeightSmall"
         android:textAppearance="?attr/textAppearanceListItemSmall"
-        android:textColor="@android:color/black"
-        />
+        android:textColor="@android:color/black" />
 
     <CheckBox
         android:id="@+id/delete_checkbox"
@@ -22,7 +21,5 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:visibility="gone"/>
-
-
+        android:visibility="gone" />
 </RelativeLayout>

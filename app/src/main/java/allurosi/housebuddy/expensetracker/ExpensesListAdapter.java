@@ -20,15 +20,13 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
     private int resourceId;
     private List<Product> products;
 
-    private ExpensesActivity mExpenseActivity;
+    private ExpensesFragment mExpensesFragment;
 
     ExpensesListAdapter(Context context, int resourceId, List<Product> products) {
         super(context, resourceId, products);
         this.mContext = context;
         this.resourceId = resourceId;
         this.products = products;
-
-        mExpenseActivity = (ExpensesActivity) context;
     }
 
     @NonNull
@@ -54,7 +52,7 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
             @Override
             public void onClick(View v) {
                 remove(product);
-                mExpenseActivity.remove(product);
+                mExpensesFragment.remove(product);
 
             }
         });
@@ -62,10 +60,14 @@ public class ExpensesListAdapter extends ArrayAdapter<Product> {
         return convertView;
     }
 
+    public void setExpensesFragment(ExpensesFragment expensesFragment) {
+        mExpensesFragment = expensesFragment;
+    }
+
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        mExpenseActivity.totalPrice();
+        mExpensesFragment.totalPrice();
     }
 
 }

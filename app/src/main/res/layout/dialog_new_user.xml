@@ -20,12 +20,12 @@
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/button_back"
+                android:id="@+id/button_close"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:tint="@android:color/white"
-                app:srcCompat="@drawable/ic_arrow_back_white" />
+                app:srcCompat="@drawable/ic_close_white" />
 
             <TextView
                 android:layout_width="0dp"
